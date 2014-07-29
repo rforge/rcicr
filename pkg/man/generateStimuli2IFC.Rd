@@ -8,7 +8,7 @@ generateStimuli2IFC(base_face_files, n_trials = 770, img_size = 512,
   seed = 1)
 }
 \arguments{
-\item{base_face_file}{List containing base face file names (jpegs) used as base images for stimuli}
+\item{base_face_files}{List containing base face file names (jpegs) used as base images for stimuli}
 
 \item{n_trials}{Number specifying how many trials the task will have (function will generate two images for each trial per base image: original and inverted/negative noise)}
 

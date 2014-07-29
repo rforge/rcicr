@@ -3,15 +3,12 @@
 \alias{simulateNoiseIntensities}
 \title{Simulate pixel intensity range for noise}
 \usage{
-simulateNoiseIntensities(nrep = 1000, img_size = 512,
-  distribution = "uniform")
+simulateNoiseIntensities(nrep = 1000, img_size = 512)
 }
 \arguments{
 \item{nrep}{Number of replications}
 
 \item{img_size}{Size of noise pattern in pixels (one value equal for width and height)}
-
-\item{distribution}{Which distribution for parameters to use (normal/uniform)}
 }
 \value{
 Matrix with range of noise itensities for each replication
