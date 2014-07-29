@@ -14,9 +14,8 @@
 #' @param label Label to prepend to each file for your convenience
 #' @param use_same_parameters Boolean specifying whether for each base image, the same set of parameters is used, or unique set is created for each base image
 #' @param seed Integer seeding the random number generator (for reproducibility)
-#' @param distribution String specifying whether \code{uniform} or \code{normal} distribution should be used for contrasts.
 #' @return Nothing, everything is saved to files. 
-generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, stimulus_path='./stimuli', label='rcic', use_same_parameters=TRUE, seed=1, distribution='uniform') {
+generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, stimulus_path='./stimuli', label='rcic', use_same_parameters=TRUE, seed=1) {
   
   # Initalize #
   s <- generateNoisePattern(img_size)
@@ -28,30 +27,23 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
   
   for (base_face in names(base_face_files)) {
     # Read base face
-    img <- biOps::readJpeg(base_face_files[[base_face]])    
+    img <- jpeg::readJPEG(base_face_files[[base_face]])    
     
-    # Change base face to grey scale if necessary
-    if (biOps::imageType(img) != "grey") {
-      img <- biOps::imgRGB2Grey(img)
-    } 
+    # TODO: Change base face to grey scale if necessary
+    
     
     # Adjust size of base face
-    base_faces[[base_face]] <- biOps::imgMedianShrink(img, x_scale=img_size/ncol(img), y_scale=img_size/nrow(img))
-    
+    #base_faces[[base_face]] <- biOps::imgMedianShrink(img, x_scale=img_size/ncol(img), y_scale=img_size/nrow(img))
+    base_faces[[base_face]] <- img
   }
   
   # Generate parameters #
   if (use_same_parameters) {
     
     # Generate stimuli parameters, one set for all base faces
-    params <- zeros(n_trials, 4096)
+    params <- matlab::zeros(n_trials, 4096)
     for (trial in 1:n_trials) {  
-      if (distribution == 'normal') {
-        params[trial,] <- rnorm(4096)        
-      } 
-      if (distribution == 'uniform') {
-        params[trial,] <- (runif(4096) * 2) - 1
-      }
+      params[trial,] <- (runif(4096) * 2) - 1
     }    
     
     # Assign to each base face the same set
@@ -63,7 +55,7 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
   } else {
     for (base_face in names(base_faces)) {
       # Generate stimuli parameters, unique to each base face
-      stimuli_params[[base_face]] <- zeros(n_trials, 4096)  
+      stimuli_params[[base_face]] <- matlab::zeros(n_trials, 4096)  
       for (trial in 1:n_trials) { 
         if (distribution == 'normal') {
           stimuli_params[[base_face]][trial,] <- rnorm(4096)        
@@ -79,7 +71,7 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
   # Generate stimuli #
   
   pb <- tcltk::tkProgressBar(title="Generating stimuli for all base faces", label=paste0("trials:", n_trials, " base faces:", length(base_faces)), min=0, max=n_trials, initial=0)
-  stimuli <- zeros(img_size, img_size, n_trials)
+  stimuli <- matlab::zeros(img_size, img_size, n_trials)
   
   for (trial in 1:n_trials) {
     tcltk::setTkProgressBar(pb, trial)
@@ -95,57 +87,31 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
         stimuli[,,trial] <- generateNoiseImage(stimuli_params[[base_face]][trial,], s)        
       }
       
-      stimulus <- stimuli[,,trial]
-      
-      # apply distribution dependent scaling
-      if (distribution == 'normal') {
-        # centered around 0, bring to [0, 255]
-        stimulus <- (stimulus + 0.5) * 255
-      }
-      
-      if (distribution == 'uniform') {
-        # values are based on simulations, most values will fall withinin this range: [-0.3, 0.3]
-        # test for yourself with simulateNoiseIntensities() function
-        stimulus <- ((stimulus + 0.3) / (0.6)) * 255
-      }
-      
-      stimulus <- biOps::imagedata(stimulus)
-      
+      # Scale noise (based on simulations, most values fall within this range [-0.3, 0.3], test
+      # for yourself with simulateNoiseIntensities())
+      stimulus <- ((stimuli[,,trial] + 0.3) / 0.6)
+            
       # add base face
-      stimulus <- biOps::imgAverage(list(stimulus, base_faces[[base_face]]))
+      combined <- (stimulus + base_faces[[base_face]]) / 2
       
       # write to file
-      biOps::writeJpeg(paste(stimulus_path, paste(label, base_face, seed, sprintf("%05d_ori.jpg", trial), sep="_"), sep='/'), stimulus)
+      jpeg::writeJPEG(combined, paste(stimulus_path, paste(label, base_face, seed, sprintf("%05d_ori.jpg", trial), sep="_"), sep='/'), quality = 1.0)
       
       # compute inverted stimulus
-      stimulus <- -stimuli[,,trial]
-      
-      # apply distribution dependent scaling
-      if (distribution == 'normal') {
-        # centered around 0, bring to [0, 255]
-        stimulus <- (stimulus + 0.5) * 255
-      }
-      
-      if (distribution == 'uniform') {
-        # values are based on simulations, most values will fall withinin this range: [-0.3, 0.3]
-        # test for yourself with simulateNoiseIntensities() function
-        stimulus <- ((stimulus + 0.3) / (0.6)) * 255
-      }
-      
-      stimulus <- biOps::imagedata(stimulus)      
+      stimulus <- ((-stimuli[,,trial] + 0.3) / 0.6)
       
       # add base face
-      stimulus <- biOps::imgAverage(list(stimulus, base_faces[[base_face]]))
+      stimulus <- (stimulus + base_faces[[base_face]]) / 2
       
       # write to file
-      biOps::writeJpeg(paste(stimulus_path, paste(label, base_face, seed, sprintf("%05d_inv.jpg", trial), sep="_"), sep='/'), stimulus)
+      jpeg::writeJPEG(stimulus, paste(stimulus_path, paste(label, base_face, seed, sprintf("%05d_inv.jpg", trial), sep="_"), sep='/'), quality = 1.0)
     }
   }
   
   close(pb)  
   
   # Save all to image file (IMPORTANT, this file is necessary to analyze your data later and create classification images)
-  save(base_face_files, base_faces, distribution, img_size, label, n_trials, s, seed, stimuli_params, stimulus_path, trial, use_same_parameters, file=paste(stimulus_path, paste(label, "seed", seed, "time", format(Sys.time(), format="%b_%d_%Y_%H_%M.Rdata"), sep="_"), sep='/'), envir=environment())
+  save(base_face_files, base_faces, img_size, label, n_trials, s, seed, stimuli_params, stimulus_path, trial, use_same_parameters, file=paste(stimulus_path, paste(label, "seed", seed, "time", format(Sys.time(), format="%b_%d_%Y_%H_%M.Rdata"), sep="_"), sep='/'), envir=environment())
   
   
 }
@@ -163,8 +129,8 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
 #' 
 #' For more control, use \code{'constant'} scaling, where the scaling is independent of 
 #' the base image and noise range, but where the choice of constant is arbitrary (provided by the user with t
-#' the \code{constant} parameter). The noise is then scale as follows: \code{scaled <- 255 * (ci + constant) / (2*constant)}.
-#' Note that pixels can take intensity values between 0 and 255. If your scaled noise exceeds those values,
+#' the \code{constant} parameter). The noise is then scale as follows: \code{scaled <- (ci + constant) / (2*constant)}.
+#' Note that pixels can take intensity values between 0 and 1 If your scaled noise exceeds those values,
 #' a warning will be given. You should pick a higher constant (but do so consistently for different classification images
 #' that you want to compare). The higher the constant, the less visible the noise will be in the resulting image.
 #' 
@@ -203,9 +169,9 @@ generateCI2IFC <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE
   if (scaling == 'none') {
     scaled <- ci
   } else if (scaling == 'constant') {
-    scaled <- 255 * (ci + constant) / (2*constant)
-    if (max(scaled) > 255 | min(scaled) < 0) {
-      warning('Chosen constant value for constant scaling made noise of classification image exceed possible intensity range of pixels (<0 or >255). Choose a lower value, or clipping will occur.')
+    scaled <- (ci + constant) / (2*constant)
+    if (max(scaled) > 1.0 | min(scaled) < 0) {
+      warning('Chosen constant value for constant scaling made noise of classification image exceed possible intensity range of pixels (<0 or >1). Choose a lower value, or clipping will occur.')
     } 
   } else if (scaling == 'matched') {
     scaled <- min(base) + ((max(base) - min(base)) * (ci - min(ci)) / (max(ci) - min(ci)))
@@ -219,7 +185,6 @@ generateCI2IFC <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE
   
   # Save to file
   if (saveasjpeg) {
-    img <- biOps::imagedata(combined)
     
     if (filename == '') {
       filename <- paste0(baseimage, '.jpg')
@@ -231,7 +196,7 @@ generateCI2IFC <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE
       filename <- paste0('ci_', filename)
     }
     
-    biOps::writeJpeg(filename, img)
+    jpeg::writeJPEG(combined, filename)
     
   }
   

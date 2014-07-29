@@ -5,7 +5,7 @@
 \usage{
 generateStimuli2IFC(base_face_files, n_trials = 770, img_size = 512,
   stimulus_path = "./stimuli", label = "rcic", use_same_parameters = TRUE,
-  seed = 1, distribution = "uniform")
+  seed = 1)
 }
 \arguments{
 \item{base_face_file}{List containing base face file names (jpegs) used as base images for stimuli}
@@ -21,8 +21,6 @@ generateStimuli2IFC(base_face_files, n_trials = 770, img_size = 512,
 \item{use_same_parameters}{Boolean specifying whether for each base image, the same set of parameters is used, or unique set is created for each base image}
 
 \item{seed}{Integer seeding the random number generator (for reproducibility)}
-
-\item{distribution}{String specifying whether \code{uniform} or \code{normal} distribution should be used for contrasts.}
 }
 \value{
 Nothing, everything is saved to files.

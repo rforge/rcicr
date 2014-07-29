@@ -50,8 +50,8 @@ generateNoisePattern <- function(img_size=512) {
   nrSin = length(scales) * length(orientations) * length(phases)
   
   # Pre allocate memory
-  sinusoids = zeros(c(img_size, img_size, nrSin))
-  sinIdx = zeros(c(img_size, img_size, nrSin))
+  sinusoids = matlab::zeros(c(img_size, img_size, nrSin))
+  sinIdx = matlab::zeros(c(img_size, img_size, nrSin))
   
   # counters
   co = 0 # sinusoid layer counter
@@ -149,12 +149,12 @@ autoscale <- function(cis, saveasjpegs=TRUE) {
   
   # Scale all noise patterns
   for (ciname in names(cis)) {
-    cis[[ciname]]$scaled <- 255 * (cis[[ciname]]$ci + constant) / (2*constant)
+    cis[[ciname]]$scaled <-  (cis[[ciname]]$ci + constant) / (2*constant)
     
     # Combine and save to jpeg if necessary
     if (saveasjpegs) {
-      ci <- biOps::imagedata((cis[[ciname]]$scaled + cis[[ciname]]$base) / 2)
-      biOps::writeJpeg(paste0(ciname, '_autoscaled.jpg'), ci)
+      ci <- (cis[[ciname]]$scaled + cis[[ciname]]$base) / 2
+      jpeg::writeJPEG(ci, paste0(ciname, '_autoscaled.jpg'), quality=1.0)
     }
   
   }

@@ -41,8 +41,8 @@ however the quick and dirty way to see how the CI noise affects the base image.
 
 For more control, use \code{'constant'} scaling, where the scaling is independent of
 the base image and noise range, but where the choice of constant is arbitrary (provided by the user with t
-the \code{constant} parameter). The noise is then scale as follows: \code{scaled <- 255 * (ci + constant) / (2*constant)}.
-Note that pixels can take intensity values between 0 and 255. If your scaled noise exceeds those values,
+the \code{constant} parameter). The noise is then scale as follows: \code{scaled <- (ci + constant) / (2*constant)}.
+Note that pixels can take intensity values between 0 and 1 If your scaled noise exceeds those values,
 a warning will be given. You should pick a higher constant (but do so consistently for different classification images
 that you want to compare). The higher the constant, the less visible the noise will be in the resulting image.
 
