@@ -4,7 +4,7 @@
 \title{Generates 2IFC classification image}
 \usage{
 generateCI2IFC(stimuli, responses, baseimage, rdata, saveasjpeg = TRUE,
-  filename = "", antiCI = FALSE, scaling = "constant")
+  filename = "", antiCI = FALSE, scaling = "constant", constant = 0.1)
 }
 \arguments{
 \item{stimuli}{Vector with stimulus numbers (should be numeric) that were presented in the order of the response vector. Stimulus numbers must match those in file name of the generated stimuli}
@@ -21,15 +21,32 @@ generateCI2IFC(stimuli, responses, baseimage, rdata, saveasjpeg = TRUE,
 
 \item{antiCI}{Optional boolean specifying whether antiCI instead of CI should be computed}
 
-\item{scaling}{Optional string specifying scaling method: \code{none}, \code{constant} (default), \code{normalized}, or \code{matched}}
+\item{scaling}{Optional string specifying scaling method: \code{none}, \code{constant}, or \code{matched} (default)}
+
+\item{constant}{Optional number specifying the value used as constant scaling factor for the noise (only works for \code{scaling='constant'})}
 }
 \value{
-List of pixel matrix of classification noise only, scaled classificatoin noise only, base image only and combined
+List of pixel matrix of classification noise only, scaled classification noise only, base image only and combined
 }
 \description{
 Generate classification image for 2 images forced choice reverse correlation task.
 }
 \details{
-Will save the classification image as jpeg to a folder, and returns the CI
+This funcions saves the classification image as jpeg to a folder and returns the CI. Your choice of scaling
+matters. The default is \code{'matched'}, and will match the range of the intensity of the pixels to
+the range of the base image pixels. This scaling is non linear and depends on the range of both base image
+and noise pattern. It is truly suboptimal, because it shifts the 0 point of the noise (that is, pixels that would
+have not changed base image at all before scaling may change the base image after scaling and vice versa). It is
+however the quick and dirty way to see how the CI noise affects the base image.
+
+For more control, use \code{'constant'} scaling, where the scaling is independent of
+the base image and noise range, but where the choice of constant is arbitrary (provided by the user with t
+the \code{constant} parameter). The noise is then scale as follows: \code{scaled <- 255 * (ci + constant) / (2*constant)}.
+Note that pixels can take intensity values between 0 and 255. If your scaled noise exceeds those values,
+a warning will be given. You should pick a higher constant (but do so consistently for different classification images
+that you want to compare). The higher the constant, the less visible the noise will be in the resulting image.
+
+When creating multiple classification images a good strategy is to find the lowest constant that works for all
+classification images. This can be automatized using the \code{autoscale} function.
 }
 

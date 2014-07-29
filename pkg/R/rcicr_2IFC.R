@@ -154,7 +154,22 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
 #' 
 #' Generate classification image for 2 images forced choice reverse correlation task. 
 #' 
-#' Will save the classification image as jpeg to a folder, and returns the CI
+#' This funcions saves the classification image as jpeg to a folder and returns the CI. Your choice of scaling
+#' matters. The default is \code{'matched'}, and will match the range of the intensity of the pixels to
+#' the range of the base image pixels. This scaling is non linear and depends on the range of both base image
+#' and noise pattern. It is truly suboptimal, because it shifts the 0 point of the noise (that is, pixels that would
+#' have not changed base image at all before scaling may change the base image after scaling and vice versa). It is
+#' however the quick and dirty way to see how the CI noise affects the base image.
+#' 
+#' For more control, use \code{'constant'} scaling, where the scaling is independent of 
+#' the base image and noise range, but where the choice of constant is arbitrary (provided by the user with t
+#' the \code{constant} parameter). The noise is then scale as follows: \code{scaled <- 255 * (ci + constant) / (2*constant)}.
+#' Note that pixels can take intensity values between 0 and 255. If your scaled noise exceeds those values,
+#' a warning will be given. You should pick a higher constant (but do so consistently for different classification images
+#' that you want to compare). The higher the constant, the less visible the noise will be in the resulting image.
+#' 
+#' When creating multiple classification images a good strategy is to find the lowest constant that works for all 
+#' classification images. This can be automatized using the \code{autoscale} function.
 #' 
 #' @export
 #' @param stimuli Vector with stimulus numbers (should be numeric) that were presented in the order of the response vector. Stimulus numbers must match those in file name of the generated stimuli
@@ -164,9 +179,10 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
 #' @param saveasjpeg Boolean stating whether to additionally save the CI as jpeg image
 #' @param filename Optional string to specify a file name for the jpeg image
 #' @param antiCI Optional boolean specifying whether antiCI instead of CI should be computed
-#' @param scaling Optional string specifying scaling method: \code{none}, \code{constant} (default), \code{normalized}, or \code{matched}
-#' @return List of pixel matrix of classification noise only, scaled classificatoin noise only, base image only and combined 
-generateCI2IFC <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, filename='', antiCI=FALSE, scaling='constant') {
+#' @param scaling Optional string specifying scaling method: \code{none}, \code{constant}, or \code{matched} (default)
+#' @param constant Optional number specifying the value used as constant scaling factor for the noise (only works for \code{scaling='constant'})
+#' @return List of pixel matrix of classification noise only, scaled classification noise only, base image only and combined 
+generateCI2IFC <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, filename='', antiCI=FALSE, scaling='constant', constant=0.1) {
   
   # Load parameter file (created when generating stimuli)
   load(rdata)
@@ -187,11 +203,10 @@ generateCI2IFC <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE
   if (scaling == 'none') {
     scaled <- ci
   } else if (scaling == 'constant') {
-    # values are based on simulations, most values will fall withinin this range: [-0.3, 0.3]
-    # test for yourself with simulateNoiseIntensities() function
-    scaled <- ((ci + 0.3) / (0.6)) * 255
-  } else if (scaling == 'normalized') {
-    scaled <- ci / norm(ci)
+    scaled <- 255 * (ci + constant) / (2*constant)
+    if (max(scaled) > 255 | min(scaled) < 0) {
+      warning('Chosen constant value for constant scaling made noise of classification image exceed possible intensity range of pixels (<0 or >255). Choose a lower value, or clipping will occur.')
+    } 
   } else if (scaling == 'matched') {
     scaled <- min(base) + ((max(base) - min(base)) * (ci - min(ci)) / (max(ci) - min(ci)))
   } else {

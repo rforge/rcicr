@@ -121,3 +121,40 @@ generateCI <- function(stimuli, responses, s) {
   return(generateNoiseImage(params, s))
 }
 
+#' Determines optimal scaling constant for a list of ci's
+#' 
+#' @export
+#' @param cis List of cis, each of which are a list containing the pixel matrices of at least the noise pattern (\code{$ci}) and if the noise patterns need to be written to jpegs, als the base image (\code{$base})
+#' @param saveasjpegs Boolean, when set to true, the autoscaled noise patterns will be combined with their respective base images and saved as jpegs (using the key of the list as name)
+#' @return List of scaled noise patterns and determind scaling factor
+autoscale <- function(cis, saveasjpegs=TRUE) {
+  # Get range of each ci
+  ranges <- matlab::zeros(length(names(cis)), 2)
+  for (ciname in names(cis)) {
+    ranges[which(ciname==names(cis)), ] <- range(cis[[ciname]]$ci)
+  }  
+
+  # Determine the lowest possible scaling factor constant
+  if (abs(min(ranges[,1])) > max(ranges[,2])) {
+    constant <- abs(min(ranges[,1]))
+  }  else {
+    constant <- max(ranges[,2])
+  }
+
+  print(paste0("Using scaling factor constant:", constant))
+  
+  # Scale all noise patterns
+  for (ciname in names(cis)) {
+    cis[[ciname]]$scaled <- 255 * (cis[[ciname]]$ci + constant) / (2*constant)
+    
+    # Combine and save to jpeg if necessary
+    if (saveasjpegs) {
+      ci <- biOps::imagedata((cis[[ciname]]$scaled + cis[[ciname]]$base) / 2)
+      biOps::writeJpeg(paste0(ciname, '_autoscaled.jpg'), ci)
+    }
+  
+  }
+
+  cis[['autoscaling.constant']] <- constant
+  return(cis)
+}
