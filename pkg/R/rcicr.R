@@ -1,21 +1,6 @@
 # Script by Ron Dotsch, based on Matlab code by Oliver Langner and Python code by Ron Dotsch
 # r.dotsch@psych.ru.nl
 
-#' @import matlab
-library(matlab)
-
-#' @import aspace
-library(aspace)
-
-#' @import biOps
-library(biOps)
-
-#' @import tcltk
-library(tcltk)
-
-#' @import reshape
-library(reshape)
-
 #' Generate single sinusoid patch
 #'
 #' @export
@@ -30,8 +15,8 @@ library(reshape)
 generateSinusoid <- function(img_size, cycles, angle, phase, contrast) {
   
   # Generates an image matrix containing a sinusoid, angle (in degrees) of 0 will give vertical, 90 horizontally oriented sinusoid  
-  angle <- as_radians(angle)
-  sinepatch = repmat(linspace(0, cycles, img_size), img_size, 1)
+  angle <- aspace::as_radians(angle)
+  sinepatch = matlab::repmat(matlab::linspace(0, cycles, img_size), img_size, 1)
   sinusoid <- (sinepatch * cos(angle) + t(sinepatch) * sin(angle)) * 2 * pi
   sinusoid <- contrast * sin(sinusoid + phase)
   return(sinusoid)
@@ -55,7 +40,7 @@ generateNoisePattern <- function(img_size=512) {
   phases <- c(0, pi/2)
   
   # Size of sinusoids per scale
-  mg <- meshgrid(1:img_size, 1:img_size,1:length(scales))
+  mg <- matlab::meshgrid(1:img_size, 1:img_size,1:length(scales))
   x <- mg$x
   y <- mg$y
   rm(mg)
@@ -80,7 +65,7 @@ generateNoisePattern <- function(img_size=512) {
         s <- generateSinusoid(size, 2, orientation, phase, 1)
         
         # Repeat to fill scale
-        sinusoids[,,co] <- repmat(s, scale, scale)
+        sinusoids[,,co] <- matlab::repmat(s, scale, scale)
         
         # Create index matrix
         for (col in 1:scale) {
@@ -110,7 +95,7 @@ generateNoisePattern <- function(img_size=512) {
 #' @export
 #' @param params Vector with 4096 values specifying the contrast of each sinusoid in noise
 #' @param s 3D sinusoid matrix (generated using \code{generateNoisePattern()})
-#' @return The noise pattern as image
+#' @return The noise pattern as pixel matrix
 #' @examples
 #' params <- rnorm(4096) # generates 4096 normally distributed random values
 #' s <- generateNoisePattern(img_size=512)
@@ -129,7 +114,7 @@ generateNoiseImage <- function(params, s) {
 #' @param responses Vector containing the response to each trial (1 if participant selected original , -1 if participant selected inverted;
 #' this can be changed into a scale)
 #' @param s 3D sinusoid matrix (generated using \code{generateNoisePattern()})
-#' @return The classification image
+#' @return The classification image as pixel matrix
 generateCI <- function(stimuli, responses, s) {
   weighted <- responses * stimuli
   params <- colMeans(weighted)

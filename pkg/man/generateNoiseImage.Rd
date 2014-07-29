@@ -11,7 +11,7 @@ generateNoiseImage(params, s)
 \item{s}{3D sinusoid matrix (generated using \code{generateNoisePattern()})}
 }
 \value{
-The noise pattern as image
+The noise pattern as pixel matrix
 }
 \description{
 Generate single noise image based on parameter vector

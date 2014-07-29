@@ -14,7 +14,7 @@ this can be changed into a scale)}
 \item{s}{3D sinusoid matrix (generated using \code{generateNoisePattern()})}
 }
 \value{
-The classification image
+The classification image as pixel matrix
 }
 \description{
 Generate classification image based on set of stimuli (matrix: trials, parameters), responses (vector), and sinusoid

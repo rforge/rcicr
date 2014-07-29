@@ -7,3 +7,4 @@ Author: Ron Dotsch <rdotsch@gmail.com>
 Maintainer: Ron Dotsch <rdotsch@gmail.com>
 Description: Functions to generate stimuli and analyze data of reverse correlation image classification experiments.
 License: GPL2
+Imports: matlab, aspace, biOps, tcltk

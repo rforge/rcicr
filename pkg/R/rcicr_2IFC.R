@@ -28,15 +28,15 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
   
   for (base_face in names(base_face_files)) {
     # Read base face
-    img <- readJpeg(base_face_files[[base_face]])    
+    img <- biOps::readJpeg(base_face_files[[base_face]])    
     
     # Change base face to grey scale if necessary
-    if (imageType(img) != "grey") {
-      img <- imgRGB2Grey(img)
+    if (biOps::imageType(img) != "grey") {
+      img <- biOps::imgRGB2Grey(img)
     } 
     
     # Adjust size of base face
-    base_faces[[base_face]] <- imgMedianShrink(img, x_scale=img_size/ncol(img), y_scale=img_size/nrow(img))
+    base_faces[[base_face]] <- biOps::imgMedianShrink(img, x_scale=img_size/ncol(img), y_scale=img_size/nrow(img))
     
   }
   
@@ -78,11 +78,11 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
   
   # Generate stimuli #
   
-  pb <- tkProgressBar(title="Generating stimuli for all base faces", label=paste0("trials:", n_trials, " base faces:", length(base_faces)), min=0, max=n_trials, initial=0)
+  pb <- tcltk::tkProgressBar(title="Generating stimuli for all base faces", label=paste0("trials:", n_trials, " base faces:", length(base_faces)), min=0, max=n_trials, initial=0)
   stimuli <- zeros(img_size, img_size, n_trials)
   
   for (trial in 1:n_trials) {
-    setTkProgressBar(pb, trial)
+    tcltk::setTkProgressBar(pb, trial)
     
     if (use_same_parameters) {
       # compute noise pattern, can be used for all base faces
@@ -109,13 +109,13 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
         stimulus <- ((stimulus + 0.3) / (0.6)) * 255
       }
       
-      stimulus <- imagedata(stimulus)
+      stimulus <- biOps::imagedata(stimulus)
       
       # add base face
-      stimulus <- imgAverage(list(stimulus, base_faces[[base_face]]))
+      stimulus <- biOps::imgAverage(list(stimulus, base_faces[[base_face]]))
       
       # write to file
-      writeJpeg(paste(stimulus_path, paste(label, base_face, seed, sprintf("%05d_ori.jpg", trial), sep="_"), sep='/'), stimulus)
+      biOps::writeJpeg(paste(stimulus_path, paste(label, base_face, seed, sprintf("%05d_ori.jpg", trial), sep="_"), sep='/'), stimulus)
       
       # compute inverted stimulus
       stimulus <- -stimuli[,,trial]
@@ -132,13 +132,13 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
         stimulus <- ((stimulus + 0.3) / (0.6)) * 255
       }
       
-      stimulus <- imagedata(stimulus)      
+      stimulus <- biOps::imagedata(stimulus)      
       
       # add base face
-      stimulus <- imgAverage(list(stimulus, base_faces[[base_face]]))
+      stimulus <- biOps::imgAverage(list(stimulus, base_faces[[base_face]]))
       
       # write to file
-      writeJpeg(paste(stimulus_path, paste(label, base_face, seed, sprintf("%05d_inv.jpg", trial), sep="_"), sep='/'), stimulus)
+      biOps::writeJpeg(paste(stimulus_path, paste(label, base_face, seed, sprintf("%05d_inv.jpg", trial), sep="_"), sep='/'), stimulus)
     }
   }
   
