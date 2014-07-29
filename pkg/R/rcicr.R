@@ -127,10 +127,6 @@ generateCI <- function(stimuli, responses, s) {
 #' @param cis List of cis, each of which are a list containing the pixel matrices of at least the noise pattern (\code{$ci}) and if the noise patterns need to be written to jpegs, als the base image (\code{$base})
 #' @param saveasjpegs Boolean, when set to true, the autoscaled noise patterns will be combined with their respective base images and saved as jpegs (using the key of the list as name)
 #' @return List of scaled noise patterns and determind scaling factor
-#' @examples
-#' ci1 <- generateCI2IFC(stims, responses.subject1, 'nameofbaseimage', 'nameofgeneratedstimulifile.Rdata')
-#' ci2 <- generateCI2IFC(stims, responses.subject2, 'nameofbaseimage', 'nameofgeneratedstimulifile.Rdata')
-#' cis <- autoscale(list('subject1'=ci, 'subject2'=antici), saveasjpegs=TRUE)
 autoscale <- function(cis, saveasjpegs=TRUE) {
   # Get range of each ci
   ranges <- matlab::zeros(length(names(cis)), 2)

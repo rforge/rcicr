@@ -7,7 +7,7 @@
 #' .Rdata file contains the parameters that were used to generate each stimulus.
 #' 
 #' @export
-#' @param base_face_file List containing base face file names (jpegs) used as base images for stimuli
+#' @param base_face_files List containing base face file names (jpegs) used as base images for stimuli
 #' @param n_trials Number specifying how many trials the task will have (function will generate two images for each trial per base image: original and inverted/negative noise)
 #' @param img_size Number specifying the number of pixels that the stimulus image will span horizontally and vertically (will be square, so only one integer needed)
 #' @param stimulus_path Path to save stimuli and .Rdata file to
@@ -57,12 +57,7 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
       # Generate stimuli parameters, unique to each base face
       stimuli_params[[base_face]] <- matlab::zeros(n_trials, 4096)  
       for (trial in 1:n_trials) { 
-        if (distribution == 'normal') {
-          stimuli_params[[base_face]][trial,] <- rnorm(4096)        
-        } 
-        if (distribution == 'uniform') {
-          stimuli_params[[base_face]][trial,] <- (runif(4096) * 2) - 1
-        }
+        stimuli_params[[base_face]][trial,] <- (runif(4096) * 2) - 1
       }    
     }
     
