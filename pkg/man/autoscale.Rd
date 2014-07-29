@@ -16,4 +16,9 @@ List of scaled noise patterns and determind scaling factor
 \description{
 Determines optimal scaling constant for a list of ci's
 }
+\examples{
+ci1 <- generateCI2IFC(stims, responses.subject1, 'nameofbaseimage', 'nameofgeneratedstimulifile.Rdata')
+ci2 <- generateCI2IFC(stims, responses.subject2, 'nameofbaseimage', 'nameofgeneratedstimulifile.Rdata')
+cis <- autoscale(list('subject1'=ci, 'subject2'=antici), saveasjpegs=TRUE)
+}
 
