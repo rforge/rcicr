@@ -149,3 +149,77 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
   
   
 }
+
+#' Generates 2IFC classification image 
+#' 
+#' Generate classification image for 2 images forced choice reverse correlation task. 
+#' 
+#' Will save the classification image as jpeg to a folder, and returns the CI
+#' 
+#' @export
+#' @param stimuli Vector with stimulus numbers (should be numeric) that were presented in the order of the response vector. Stimulus numbers must match those in file name of the generated stimuli
+#' @param responses Vector specifying the responses in the same order of the stimuli vector, coded 1 for original stimulus selected and -1 for inverted stimulus selected.
+#' @param baseimage String specifying which base image was used. Not the file name, but the key used in the list of base images at time of generating the stimuli.
+#' @param rdata String pointing to .RData file that was created when stimuli were generated. This file contains the contrast parameters of all generated stimuli.
+#' @param saveasjpeg Boolean stating whether to additionally save the CI as jpeg image
+#' @param filename Optional string to specify a file name for the jpeg image
+#' @param antiCI Optional boolean specifying whether antiCI instead of CI should be computed
+#' @param scaling Optional string specifying scaling method: \code{none}, \code{constant} (default), \code{normalized}, or \code{matched}
+#' @return List of pixel matrix of classification noise only, scaled classificatoin noise only, base image only and combined 
+generateCI2IFC <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, filename='', antiCI=FALSE, scaling='constant') {
+  
+  # Load parameter file (created when generating stimuli)
+  load(rdata)
+  
+  # Get base image
+  base <- base_faces[[baseimage]]
+  
+  # Get parameters of actually presented stimuli (this will work with non-consecutive stims as well)
+  params <- stimuli_params[[baseimage]][stimuli,]
+  
+  # Compute classification image
+  if (antiCI) {
+    params = -params
+  } 
+  ci <- generateCI(params, responses, s)
+  
+  # Scale 
+  if (scaling == 'none') {
+    scaled <- ci
+  } else if (scaling == 'constant') {
+    # values are based on simulations, most values will fall withinin this range: [-0.3, 0.3]
+    # test for yourself with simulateNoiseIntensities() function
+    scaled <- ((ci + 0.3) / (0.6)) * 255
+  } else if (scaling == 'normalized') {
+    scaled <- ci / norm(ci)
+  } else if (scaling == 'matched') {
+    scaled <- min(base) + ((max(base) - min(base)) * (ci - min(ci)) / (max(ci) - min(ci)))
+  } else {
+    warning(paste0('Scaling method \'', scaling, '\' not found. Using none.'))
+    scaled <- ci
+  }
+  
+  # Combine with base image
+  combined <- (scaled + base) / 2
+  
+  # Save to file
+  if (saveasjpeg) {
+    img <- biOps::imagedata(combined)
+    
+    if (filename == '') {
+      filename <- paste0(baseimage, '.jpg')
+    }
+    
+    if (antiCI) {
+      filename <- paste0('antici_', filename)
+    } else {
+      filename <- paste0('ci_', filename)
+    }
+    
+    biOps::writeJpeg(filename, img)
+    
+  }
+  
+  # Return list
+  return(list(ci=ci, scaled=scaled, base=base, combined=combined))
+}
