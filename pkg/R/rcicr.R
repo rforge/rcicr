@@ -30,9 +30,7 @@ generateSinusoid <- function(img_size, cycles, angle, phase, contrast) {
 #' @return List with two elements: the 3D sinusoid matrix with size \code{img_size}, and and indexing
 #' matrix with the same size to easily change contrasts.
 #' @examples
-#' generateNoisePattern(512)
 #' generateNoisePattern(256)
-#' generateNoisePattern(128)
 generateNoisePattern <- function(img_size=512) {
   # Settings of sinusoids
   scales <- c(1, 2, 4, 8, 16)
@@ -98,10 +96,8 @@ generateNoisePattern <- function(img_size=512) {
 #' @return The noise pattern as pixel matrix
 #' @examples
 #' params <- rnorm(4096) # generates 4096 normally distributed random values
-#' s <- generateNoisePattern(img_size=512)
+#' s <- generateNoisePattern(img_size=256)
 #' noise <- generateNoiseImage(params, s)
-#' generateNoisePattern(256)
-#' generateNoisePattern(128)
 generateNoiseImage <- function(params, s) {
   noise <- apply(s$sinusoids * array(params[s$sinIdx], dim(s$sinusoids)), 1:2, mean)
   return(noise)
