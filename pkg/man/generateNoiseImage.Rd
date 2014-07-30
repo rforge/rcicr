@@ -18,9 +18,7 @@ Generate single noise image based on parameter vector
 }
 \examples{
 params <- rnorm(4096) # generates 4096 normally distributed random values
-s <- generateNoisePattern(img_size=512)
+s <- generateNoisePattern(img_size=256)
 noise <- generateNoiseImage(params, s)
-generateNoisePattern(256)
-generateNoisePattern(128)
 }
 

@@ -16,8 +16,6 @@ matrix with the same size to easily change contrasts.
 Generate sinusoid noise pattern
 }
 \examples{
-generateNoisePattern(512)
 generateNoisePattern(256)
-generateNoisePattern(128)
 }
 
