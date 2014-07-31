@@ -149,15 +149,15 @@ generateCI2IFC <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE
   load(rdata)
   
   # Check whether critical variables have been loaded
-  if (!exists('s')) {
+  if (!exists('s', envir=environment(), inherits=FALSE)) {
     stop('File specified in rdata argument did not contain s variable.')
   }
   
-  if (!exists('base_faces')) {
+  if (!exists('base_faces', envir=environment(), inherits=FALSE)) {
     stop('File specified in rdata argument did not contain base_faces variable.')
   }
   
-  if (!exists('stimuli_params')) {
+  if (!exists('stimuli_params', envir=environment(), inherits=FALSE)) {
     stop('File specified in rdata argument did not contain stimuli_params variable.')
   }
   
