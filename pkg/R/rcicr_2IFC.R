@@ -211,3 +211,7 @@ generateCI2IFC <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE
   # Return list
   return(list(ci=ci, scaled=scaled, base=base, combined=combined))
 }
+
+# Suppress checking notes for variables loaded at runtime from .RData files
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("s", "base_faces", "stimuli_params"))
+
