@@ -32,8 +32,7 @@ Dotsch, R., & Todorov, A. (2012). Reverse correlating social face perception. So
 Dotsch, R., Wigboldus, D. H. J., Langner, O., & Van Knippenberg, A. (2008). Ethnic out-group faces are biased in the prejudiced mind. Psychological Science, 19, 978-980.
 }
 \keyword{ package }
-\seealso{
-}
+
 \examples{
 #simple examples will be added soon.
 }
