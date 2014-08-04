@@ -12,7 +12,7 @@ Toolbox with functions to generate stimuli and analyze data of reverse correlati
 \tabular{ll}{
 Package: \tab rcicr\cr
 Type: \tab Package\cr
-Version: \tab 0.2.1\cr
+Version: \tab 0.2.2\cr
 Date: \tab 2014-07-26\cr
 License: \tab GPL-2\cr
 }

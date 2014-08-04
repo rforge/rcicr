@@ -29,8 +29,10 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
     # Read base face
     img <- jpeg::readJPEG(base_face_files[[base_face]])    
     
-    # TODO: Change base face to grey scale if necessary
-    
+    # Change base face to grey scale if necessary
+    if (length(dim(img)) == 3) {
+      img <- apply(img, c(1, 2), mean)
+    }
     
     # Adjust size of base face
     #base_faces[[base_face]] <- biOps::imgMedianShrink(img, x_scale=img_size/ncol(img), y_scale=img_size/nrow(img))
