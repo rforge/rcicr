@@ -12,7 +12,7 @@ Toolbox with functions to generate stimuli and analyze data of reverse correlati
 \tabular{ll}{
 Package: \tab rcicr\cr
 Type: \tab Package\cr
-Version: \tab 0.2.2\cr
+Version: \tab 0.2.3\cr
 Date: \tab 2014-07-26\cr
 License: \tab GPL-2\cr
 }
@@ -43,6 +43,10 @@ The \code{stimuli} paramater should be a vector containing the sequence numbers 
 By default jpg's of the classification images will be saved automatically. The returned values can be used later to optimally rescale the noise relative to the base image. For instance, if you have a list of ci's from various participants (i.e., a list of the values returned by several calls to \code{generateCI2IFC}, one for each participant), you can use the autoscale function to generate classification images that are scaled identically and therefore straightforward to compare:
 
 \code{scaled_cis <- autoscale(cis, saveasjpegs = TRUE)}
+
+\bold{Computing CIs for many participants or conditions}
+
+Data analysis as described above can be automatized for a batch of participants or conditions using \code{batchGenerateCI2IFC}. Please see instructions for that function. 
 
 \bold{Note}
 
