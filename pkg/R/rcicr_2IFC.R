@@ -244,21 +244,30 @@ batchGenerateCI2IFC <- function(data, by, stimuli, responses, baseimage, rdata, 
     doAutoscale <- FALSE
   }
   
+  pb <- tcltk::tkProgressBar(title="Computing classification images",  min=0, max=length(unique(data[,by])), initial=0)
   cis <- list()
+  counter <- 0
   
   for (unit in unique(data[,by])) {
+    
+    # Update progress bar
+    counter <- counter + 1
+    tcltk::setTkProgressBar(pb, counter, label=unit)
+    
     # Get subset of data 
     unitdata <- data[data[,by] == unit, ]
     
-    # Compute CI with appropriate settings for this subset
+    # Compute CI with appropriate settings for this subset (Optimize later so rdata file is loaded only once)
     cis[[unit]] <- generateCI2IFC(unitdata[,stimuli], unitdata[,responses], baseimage, rdata, saveasjpeg, filename, antiCI, scaling, constant)
   
   }
   
   if (doAutoscale) {
+    tcltk::setTkProgressBar(pb, counter, label="Autoscaling...")
     cis <- autoscale(cis)
   }
   
+  close(pb)
   return(cis)
 
 }
