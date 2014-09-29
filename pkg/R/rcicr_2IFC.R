@@ -14,8 +14,9 @@
 #' @param label Label to prepend to each file for your convenience
 #' @param use_same_parameters Boolean specifying whether for each base image, the same set of parameters is used, or unique set is created for each base image
 #' @param seed Integer seeding the random number generator (for reproducibility)
+#' @param maximize_baseimage_contrast Boolean specifying wheter the pixel values of the base image should be rescaled to maximize its contrast. 
 #' @return Nothing, everything is saved to files. 
-generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, stimulus_path='./stimuli', label='rcic', use_same_parameters=TRUE, seed=1) {
+generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, stimulus_path='./stimuli', label='rcic', use_same_parameters=TRUE, seed=1, maximize_baseimage_contrast=TRUE) {
   
   # Initalize #
   s <- generateNoisePattern(img_size)
@@ -36,6 +37,13 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
     
     # Adjust size of base face
     #base_faces[[base_face]] <- biOps::imgMedianShrink(img, x_scale=img_size/ncol(img), y_scale=img_size/nrow(img))
+    
+    # If necessary, rescale to maximize contrast
+    if (maximize_baseimage_contrast) {
+      img <- (img - min(img)) / (max(img) - min(img))
+    }
+    
+    # Save base image to list
     base_faces[[base_face]] <- img
   }
   

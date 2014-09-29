@@ -1,3 +1,7 @@
+Changes from Version 0.2.3-23 to 0.2.4-24 [29-Sep-2014]
+
+* Added default contrast maximization of base images (and argument for generateStimuli2IFC to switch it off)
+
 Changes from Version 0.2.3-22 to 0.2.3-23 [29-Aug-2014]
 
 * Added visual feedback for batchGenerateCI2IFC function.

@@ -5,7 +5,7 @@
 \usage{
 generateStimuli2IFC(base_face_files, n_trials = 770, img_size = 512,
   stimulus_path = "./stimuli", label = "rcic", use_same_parameters = TRUE,
-  seed = 1)
+  seed = 1, maximize_baseimage_contrast = TRUE)
 }
 \arguments{
 \item{base_face_files}{List containing base face file names (jpegs) used as base images for stimuli}
@@ -21,6 +21,8 @@ generateStimuli2IFC(base_face_files, n_trials = 770, img_size = 512,
 \item{use_same_parameters}{Boolean specifying whether for each base image, the same set of parameters is used, or unique set is created for each base image}
 
 \item{seed}{Integer seeding the random number generator (for reproducibility)}
+
+\item{maximize_baseimage_contrast}{Boolean specifying wheter the pixel values of the base image should be rescaled to maximize its contrast.}
 }
 \value{
 Nothing, everything is saved to files.
