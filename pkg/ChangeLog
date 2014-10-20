@@ -1,3 +1,9 @@
+Changes from Version 0.2.4-24 to 0.2.5-25 [20-Oct-2014]
+
+* Updated batchGenerateCI2IFC function to create jpegs with appropriate filenames.
+* Updated batchGenerateCI2IFC function so that only autoscaled images are written.
+* Bugfix in batchGenerateCI2IFC function: numeric values for the 'by' column no longer raise errors.
+
 Changes from Version 0.2.3-23 to 0.2.4-24 [29-Sep-2014]
 
 * Added default contrast maximization of base images (and argument for generateStimuli2IFC to switch it off)

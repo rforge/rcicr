@@ -238,12 +238,11 @@ generateCI2IFC <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE
 #' @param baseimage String specifying which base image was used. Not the file name, but the key used in the list of base images at time of generating the stimuli.
 #' @param rdata String pointing to .RData file that was created when stimuli were generated. This file contains the contrast parameters of all generated stimuli.
 #' @param saveasjpeg Boolean stating whether to additionally save the CI as jpeg image
-#' @param filename Optional string to specify a file name for the jpeg image
 #' @param antiCI Optional boolean specifying whether antiCI instead of CI should be computed
 #' @param scaling Optional string specifying scaling method: \code{none}, \code{constant},  \code{matched} or \code{autoscale} (default)
 #' @param constant Optional number specifying the value used as constant scaling factor for the noise (only works for \code{scaling='constant'})
 #' @return List of classification image data structures (which are themselves lists of pixel matrix of classification noise only, scaled classification noise only, base image only and combined) 
-batchGenerateCI2IFC <- function(data, by, stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, filename='', antiCI=FALSE, scaling='autoscale', constant=0.1) {
+batchGenerateCI2IFC <- function(data, by, stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, antiCI=FALSE, scaling='autoscale', constant=0.1) {
  
   if (scaling == 'autoscale') {
     doAutoscale <- TRUE
@@ -264,15 +263,17 @@ batchGenerateCI2IFC <- function(data, by, stimuli, responses, baseimage, rdata, 
     
     # Get subset of data 
     unitdata <- data[data[,by] == unit, ]
+
+    # Specify filename for CI jpeg
+    filename <- paste0(baseimage, '_', by, '_', unitdata[1,by])
     
     # Compute CI with appropriate settings for this subset (Optimize later so rdata file is loaded only once)
-    cis[[unit]] <- generateCI2IFC(unitdata[,stimuli], unitdata[,responses], baseimage, rdata, saveasjpeg, filename, antiCI, scaling, constant)
-  
+    cis[[filename]] <- generateCI2IFC(unitdata[,stimuli], unitdata[,responses], baseimage, rdata, saveasjpeg, paste0(filename, '.jpg'), antiCI, scaling, constant)
   }
   
   if (doAutoscale) {
     tcltk::setTkProgressBar(pb, counter, label="Autoscaling...")
-    cis <- autoscale(cis)
+    cis <- autoscale(cis, saveasjpegs=saveasjpeg)
   }
   
   close(pb)

@@ -4,8 +4,8 @@
 \title{Generates multiple 2IFC classification images by participant or condition}
 \usage{
 batchGenerateCI2IFC(data, by, stimuli, responses, baseimage, rdata,
-  saveasjpeg = TRUE, filename = "", antiCI = FALSE,
-  scaling = "autoscale", constant = 0.1)
+  saveasjpeg = TRUE, antiCI = FALSE, scaling = "autoscale",
+  constant = 0.1)
 }
 \arguments{
 \item{data}{Data frame}
@@ -21,8 +21,6 @@ batchGenerateCI2IFC(data, by, stimuli, responses, baseimage, rdata,
 \item{rdata}{String pointing to .RData file that was created when stimuli were generated. This file contains the contrast parameters of all generated stimuli.}
 
 \item{saveasjpeg}{Boolean stating whether to additionally save the CI as jpeg image}
-
-\item{filename}{Optional string to specify a file name for the jpeg image}
 
 \item{antiCI}{Optional boolean specifying whether antiCI instead of CI should be computed}
 
