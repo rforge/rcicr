@@ -1,3 +1,7 @@
+Changes from 0.2.5-25 to 0.2.5-26 [14-Nov-2014]
+
+* Added .Rprofile to package root to prevent cyclic depency check error.
+
 Changes from Version 0.2.4-24 to 0.2.5-25 [20-Oct-2014]
 
 * Updated batchGenerateCI2IFC function to create jpegs with appropriate filenames.
