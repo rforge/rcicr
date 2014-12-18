@@ -112,8 +112,10 @@ generateNoiseImage <- function(params, s) {
 #' @param s 3D sinusoid matrix (generated using \code{generateNoisePattern()})
 #' @return The classification image as pixel matrix
 generateCI <- function(stimuli, responses, s) {
+  
   weighted <- responses * stimuli
   params <- colMeans(weighted)
+  
   return(generateNoiseImage(params, s))
 }
 

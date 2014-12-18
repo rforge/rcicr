@@ -173,9 +173,25 @@ generateCI2IFC <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE
   
   # Get base image
   base <- base_faces[[baseimage]]
+  if (is.null(base)) {
+    stop(paste0('File specified in rdata argument did not contain any reference to base image label: ', baseimage, ' (NOTE: file contains references to the following base image label(s): ', paste(names(base_faces), collapse=', '), ')'))
+  }
   
-  # Get parameters of actually presented stimuli (this will work with non-consecutive stims as well)
+  
+  # Average responses for each presented stimulus (in case stimuli have been presented multiple times,
+  # or group-wise classification images are being calculated, in order to reduce memory and processing
+  # load)
+  aggregated <- aggregate(responses, by=list(stimuli=stimuli), FUN=mean)
+  responses <- aggregated$x
+  stimuli <- aggregated$stimuli
+  
+  # Retrieve parameters of actually presented stimuli (this will work with non-consecutive stims as well)
   params <- stimuli_params[[baseimage]][stimuli,]
+
+  # Check whether parameters were found in this .rdata file
+  if (length(params) == 0) {
+    stop(paste0('No parameters found for base image: ', base))
+  }
   
   # Compute classification image
   if (antiCI) {

@@ -1,3 +1,8 @@
+Changes from 0.2.5-26 to 0.2.6-27 []
+
+* Added feedback to user when base image label was not found in .rdata file
+* Reduced processing and memory load of generateCI2IFC when stimuli are presented multiple times or CIs are computed for multiple subjects
+
 Changes from 0.2.5-25 to 0.2.5-26 [14-Nov-2014]
 
 * Added .Rprofile to package root to prevent cyclic depency check error.
