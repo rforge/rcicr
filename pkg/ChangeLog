@@ -1,4 +1,4 @@
-Changes from 0.2.5-26 to 0.2.6-27 []
+Changes from 0.2.5-26 to 0.2.6-28 [18-Dec-2014]
 
 * Added feedback to user when base image label was not found in .rdata file
 * Reduced processing and memory load of generateCI2IFC when stimuli are presented multiple times or CIs are computed for multiple subjects
