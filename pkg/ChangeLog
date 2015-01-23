@@ -1,3 +1,8 @@
+Changes from 0.2.6-28 to 0.3.0-29 [23-Jan-2015]
+
+* Bugfix in generateNoisePattern: sinIdx counted from 0-4091 instead of 1-4092. This means one single sinus in a sinusoid patch in the highest spatial frequency in one of the corners of stimuli and one single sinus in a sinusoid patch in the lowest spatial frequency was fixed in contrast. You can use version 0.3.0 to perform your analysis of data collected with stimuli generated pre 0.3.0. It will conduct the analysis as pre 0.3.0 versions of rcicr would have done. Stimuli generated with version 0.3.0 and up do not have this problem and will automatically be analyzed correctly.
+* Reduced memory load in by removing redundant random contrasts generated for each stimulus (4096 => 4092). This does not affect anything else.
+
 Changes from 0.2.5-26 to 0.2.6-28 [18-Dec-2014]
 
 * Added feedback to user when base image label was not found in .rdata file

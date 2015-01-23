@@ -6,7 +6,7 @@
 generateCI(stimuli, responses, s)
 }
 \arguments{
-\item{stimuli}{Matrix with one row per trial, each row containing the 4096 parameters for the original stimulus}
+\item{stimuli}{Matrix with one row per trial, each row containing the 4092 parameters for the original stimulus}
 
 \item{responses}{Vector containing the response to each trial (1 if participant selected original , -1 if participant selected inverted;
 this can be changed into a scale)}

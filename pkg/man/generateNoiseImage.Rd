@@ -6,7 +6,7 @@
 generateNoiseImage(params, s)
 }
 \arguments{
-\item{params}{Vector with 4096 values specifying the contrast of each sinusoid in noise}
+\item{params}{Vector with 4092 values specifying the contrast of each sinusoid in noise}
 
 \item{s}{3D sinusoid matrix (generated using \code{generateNoisePattern()})}
 }
@@ -17,7 +17,7 @@ The noise pattern as pixel matrix
 Generate single noise image based on parameter vector
 }
 \examples{
-params <- rnorm(4096) # generates 4096 normally distributed random values
+params <- rnorm(4092) # generates 4092 normally distributed random values
 s <- generateNoisePattern(img_size=256)
 noise <- generateNoiseImage(params, s)
 }

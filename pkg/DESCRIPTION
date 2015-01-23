@@ -1,7 +1,7 @@
 Package: rcicr
 Type: Package
 Title: Reverse correlation image classification toolbox
-Version: 0.2.6
+Version: 0.3.0
 Date: 2014-12-18
 URL: http://ron.dotsch.org/rcicr
 Author: Ron Dotsch <rdotsch@gmail.com>

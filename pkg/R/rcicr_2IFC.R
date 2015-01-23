@@ -51,9 +51,9 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
   if (use_same_parameters) {
     
     # Generate stimuli parameters, one set for all base faces
-    params <- matlab::zeros(n_trials, 4096)
+    params <- matlab::zeros(n_trials, 4092)
     for (trial in 1:n_trials) {  
-      params[trial,] <- (runif(4096) * 2) - 1
+      params[trial,] <- (runif(4092) * 2) - 1
     }    
     
     # Assign to each base face the same set
@@ -65,9 +65,9 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
   } else {
     for (base_face in names(base_faces)) {
       # Generate stimuli parameters, unique to each base face
-      stimuli_params[[base_face]] <- matlab::zeros(n_trials, 4096)  
+      stimuli_params[[base_face]] <- matlab::zeros(n_trials, 4092)  
       for (trial in 1:n_trials) { 
-        stimuli_params[[base_face]][trial,] <- (runif(4096) * 2) - 1
+        stimuli_params[[base_face]][trial,] <- (runif(4092) * 2) - 1
       }    
     }
     
@@ -116,7 +116,8 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
   close(pb)  
   
   # Save all to image file (IMPORTANT, this file is necessary to analyze your data later and create classification images)
-  save(base_face_files, base_faces, img_size, label, n_trials, s, seed, stimuli_params, stimulus_path, trial, use_same_parameters, file=paste(stimulus_path, paste(label, "seed", seed, "time", format(Sys.time(), format="%b_%d_%Y_%H_%M.Rdata"), sep="_"), sep='/'), envir=environment())
+  generator_version <- '0.3.0'
+  save(base_face_files, base_faces, img_size, label, n_trials, s, seed, stimuli_params, stimulus_path, trial, use_same_parameters, generator_version, file=paste(stimulus_path, paste(label, "seed", seed, "time", format(Sys.time(), format="%b_%d_%Y_%H_%M.Rdata"), sep="_"), sep='/'), envir=environment())
   
   
 }
@@ -170,7 +171,7 @@ generateCI2IFC <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE
   if (!exists('stimuli_params', envir=environment(), inherits=FALSE)) {
     stop('File specified in rdata argument did not contain stimuli_params variable.')
   }
-  
+
   # Get base image
   base <- base_faces[[baseimage]]
   if (is.null(base)) {

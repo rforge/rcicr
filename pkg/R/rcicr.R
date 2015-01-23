@@ -27,11 +27,12 @@ generateSinusoid <- function(img_size, cycles, angle, phase, contrast) {
 #' 
 #' @export
 #' @param img_size Integer specifying size of the noise pattern in number of pixels
+#' @param pre_0.3.0 Boolean specifying whether the noise pattern should be created in a way compatible with older versions of rcicr (< 0.3.0). If you are starting a new project, you should keep this at the default setting (FALSE). There is no reason to set this to TRUE, with the sole exception to recreate behavior of rcicr prior to version 0.3.0.  
 #' @return List with two elements: the 3D sinusoid matrix with size \code{img_size}, and and indexing
 #' matrix with the same size to easily change contrasts.
 #' @examples
 #' generateNoisePattern(256)
-generateNoisePattern <- function(img_size=512) {
+generateNoisePattern <- function(img_size=512, pre_0.3.0=FALSE) {
   # Settings of sinusoids
   scales <- c(1, 2, 4, 8, 16)
   orientations <- c(0, 30, 60, 90, 120, 150)
@@ -52,8 +53,14 @@ generateNoisePattern <- function(img_size=512) {
   sinIdx = matlab::zeros(c(img_size, img_size, nrSin))
   
   # counters
-  co = 0 # sinusoid layer counter
-  idx = 0 # contrast index counter
+  
+  if (pre_0.3.0) {
+    co = 0 # sinusoid layer counter
+    idx = 0 # contrast index counter
+  } else {
+    co = 1 # sinusoid layer counter
+    idx = 1 # contrast index counter
+  }
   
   for (scale in scales) {
     for (orientation in orientations) {
@@ -91,11 +98,11 @@ generateNoisePattern <- function(img_size=512) {
 #' Generate single noise image based on parameter vector
 #' 
 #' @export
-#' @param params Vector with 4096 values specifying the contrast of each sinusoid in noise
+#' @param params Vector with 4092 values specifying the contrast of each sinusoid in noise
 #' @param s 3D sinusoid matrix (generated using \code{generateNoisePattern()})
 #' @return The noise pattern as pixel matrix
 #' @examples
-#' params <- rnorm(4096) # generates 4096 normally distributed random values
+#' params <- rnorm(4092) # generates 4092 normally distributed random values
 #' s <- generateNoisePattern(img_size=256)
 #' noise <- generateNoiseImage(params, s)
 generateNoiseImage <- function(params, s) {
@@ -106,7 +113,7 @@ generateNoiseImage <- function(params, s) {
 #' Generate classification image based on set of stimuli (matrix: trials, parameters), responses (vector), and sinusoid
 #' 
 #' @export
-#' @param stimuli Matrix with one row per trial, each row containing the 4096 parameters for the original stimulus
+#' @param stimuli Matrix with one row per trial, each row containing the 4092 parameters for the original stimulus
 #' @param responses Vector containing the response to each trial (1 if participant selected original , -1 if participant selected inverted;
 #' this can be changed into a scale)
 #' @param s 3D sinusoid matrix (generated using \code{generateNoisePattern()})

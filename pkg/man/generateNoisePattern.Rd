@@ -3,10 +3,12 @@
 \alias{generateNoisePattern}
 \title{Generate sinusoid noise pattern}
 \usage{
-generateNoisePattern(img_size = 512)
+generateNoisePattern(img_size = 512, pre_0.3.0 = FALSE)
 }
 \arguments{
 \item{img_size}{Integer specifying size of the noise pattern in number of pixels}
+
+\item{pre_0.3.0}{Boolean specifying whether the noise pattern should be created in a way compatible with older versions of rcicr (< 0.3.0). If you are starting a new project, you should keep this at the default setting (FALSE). There is no reason to set this to TRUE, with the sole exception to recreate behavior of rcicr prior to version 0.3.0.}
 }
 \value{
 List with two elements: the 3D sinusoid matrix with size \code{img_size}, and and indexing
