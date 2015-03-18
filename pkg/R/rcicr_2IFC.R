@@ -124,7 +124,7 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
 
 #' Generates 2IFC classification image 
 #' 
-#' Generate classification image for 2 images forced choice reverse correlation task. 
+#' Generate classification image for 2 images forced choice reverse correlation task.  This function exists for backwards compatibility. You can also just use \code{generateCI()}, which this function wraps.
 #' 
 #' This funcions saves the classification image as jpeg to a folder and returns the CI. Your choice of scaling
 #' matters. The default is \code{'matched'}, and will match the range of the intensity of the pixels to
@@ -156,87 +156,9 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
 #' @return List of pixel matrix of classification noise only, scaled classification noise only, base image only and combined 
 generateCI2IFC <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, filename='', antiCI=FALSE, scaling='constant', constant=0.1) {
   
-  # Load parameter file (created when generating stimuli)
-  load(rdata)
-  
-  # Check whether critical variables have been loaded
-  if (!exists('s', envir=environment(), inherits=FALSE)) {
-    stop('File specified in rdata argument did not contain s variable.')
-  }
-  
-  if (!exists('base_faces', envir=environment(), inherits=FALSE)) {
-    stop('File specified in rdata argument did not contain base_faces variable.')
-  }
-  
-  if (!exists('stimuli_params', envir=environment(), inherits=FALSE)) {
-    stop('File specified in rdata argument did not contain stimuli_params variable.')
-  }
+  # For backwards compatibility  
+  return(generateCI(stimuli, responses, baseimage, rdata, saveasjpeg, filename, antiCI, scaling, constant))
 
-  # Get base image
-  base <- base_faces[[baseimage]]
-  if (is.null(base)) {
-    stop(paste0('File specified in rdata argument did not contain any reference to base image label: ', baseimage, ' (NOTE: file contains references to the following base image label(s): ', paste(names(base_faces), collapse=', '), ')'))
-  }
-  
-  
-  # Average responses for each presented stimulus (in case stimuli have been presented multiple times,
-  # or group-wise classification images are being calculated, in order to reduce memory and processing
-  # load)
-  aggregated <- aggregate(responses, by=list(stimuli=stimuli), FUN=mean)
-  responses <- aggregated$x
-  stimuli <- aggregated$stimuli
-  
-  # Retrieve parameters of actually presented stimuli (this will work with non-consecutive stims as well)
-  params <- stimuli_params[[baseimage]][stimuli,]
-
-  # Check whether parameters were found in this .rdata file
-  if (length(params) == 0) {
-    stop(paste0('No parameters found for base image: ', base))
-  }
-  
-  # Compute classification image
-  if (antiCI) {
-    params = -params
-  } 
-  ci <- generateCI(params, responses, s)
-  
-  # Scale 
-  if (scaling == 'none') {
-    scaled <- ci
-  } else if (scaling == 'constant') {
-    scaled <- (ci + constant) / (2*constant)
-    if (max(scaled) > 1.0 | min(scaled) < 0) {
-      warning('Chosen constant value for constant scaling made noise of classification image exceed possible intensity range of pixels (<0 or >1). Choose a lower value, or clipping will occur.')
-    } 
-  } else if (scaling == 'matched') {
-    scaled <- min(base) + ((max(base) - min(base)) * (ci - min(ci)) / (max(ci) - min(ci)))
-  } else {
-    warning(paste0('Scaling method \'', scaling, '\' not found. Using none.'))
-    scaled <- ci
-  }
-  
-  # Combine with base image
-  combined <- (scaled + base) / 2
-  
-  # Save to file
-  if (saveasjpeg) {
-    
-    if (filename == '') {
-      filename <- paste0(baseimage, '.jpg')
-    }
-    
-    if (antiCI) {
-      filename <- paste0('antici_', filename)
-    } else {
-      filename <- paste0('ci_', filename)
-    }
-    
-    jpeg::writeJPEG(combined, filename)
-    
-  }
-  
-  # Return list
-  return(list(ci=ci, scaled=scaled, base=base, combined=combined))
 }
 
 

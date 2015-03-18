@@ -29,7 +29,7 @@ generateCI2IFC(stimuli, responses, baseimage, rdata, saveasjpeg = TRUE,
 List of pixel matrix of classification noise only, scaled classification noise only, base image only and combined
 }
 \description{
-Generate classification image for 2 images forced choice reverse correlation task.
+Generate classification image for 2 images forced choice reverse correlation task.  This function exists for backwards compatibility. You can also just use \code{generateCI()}, which this function wraps.
 }
 \details{
 This funcions saves the classification image as jpeg to a folder and returns the CI. Your choice of scaling

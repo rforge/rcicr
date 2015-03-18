@@ -3,17 +3,17 @@
 \alias{rcicr}
 \docType{package}
 \title{
-Reverse correlation image classification
+Reverse-Correlation Image-Classification Toolbox
 }
 \description{
-Toolbox with functions to generate stimuli and analyze data of reverse correlation image classification experiments.
+Toolbox with functions to generate stimuli and analyze data of reverse correlation image classification experiments. Reverse correlation is a psychophysical technique originally derived from signal detection theory. This package focuses on visualizing internal representations of participants using visual stimuli in a perceptual taks.
 }
 \details{
 \tabular{ll}{
 Package: \tab rcicr\cr
 Type: \tab Package\cr
-Version: \tab 0.2.5\cr
-Date: \tab 2014-10-20\cr
+Version: \tab 0.3.1\cr
+Date: \tab 2015-03-18\cr
 License: \tab GPL-2\cr
 }
 \bold{Generating stimuli}

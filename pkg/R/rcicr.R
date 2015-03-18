@@ -110,7 +110,7 @@ generateNoiseImage <- function(params, s) {
   return(noise)
 }
 
-#' Generate classification image based on set of stimuli (matrix: trials, parameters), responses (vector), and sinusoid
+#' Generate classification image noise pattern based on set of stimuli (matrix: trials, parameters), responses (vector), and sinusoid
 #' 
 #' @export
 #' @param stimuli Matrix with one row per trial, each row containing the 4092 parameters for the original stimulus
@@ -118,7 +118,7 @@ generateNoiseImage <- function(params, s) {
 #' this can be changed into a scale)
 #' @param s 3D sinusoid matrix (generated using \code{generateNoisePattern()})
 #' @return The classification image as pixel matrix
-generateCI <- function(stimuli, responses, s) {
+generateCINoise <- function(stimuli, responses, s) {
   
   weighted <- responses * stimuli
   params <- colMeans(weighted)
@@ -162,4 +162,178 @@ autoscale <- function(cis, saveasjpegs=TRUE) {
 
   cis[['autoscaling.constant']] <- constant
   return(cis)
+}
+
+#' Generates classification image 
+#' 
+#' Generate classification image for for any reverse correlation task. 
+#' 
+#' This funcions saves the classification image as jpeg to a folder and returns the CI. Your choice of scaling
+#' matters. The default is \code{'matched'}, and will match the range of the intensity of the pixels to
+#' the range of the base image pixels. This scaling is non linear and depends on the range of both base image
+#' and noise pattern. It is truly suboptimal, because it shifts the 0 point of the noise (that is, pixels that would
+#' have not changed base image at all before scaling may change the base image after scaling and vice versa). It is
+#' however the quick and dirty way to see how the CI noise affects the base image.
+#' 
+#' For more control, use \code{'constant'} scaling, where the scaling is independent of 
+#' the base image and noise range, but where the choice of constant is arbitrary (provided by the user with t
+#' the \code{constant} parameter). The noise is then scale as follows: \code{scaled <- (ci + constant) / (2*constant)}.
+#' Note that pixels can take intensity values between 0 and 1 If your scaled noise exceeds those values,
+#' a warning will be given. You should pick a higher constant (but do so consistently for different classification images
+#' that you want to compare). The higher the constant, the less visible the noise will be in the resulting image.
+#' 
+#' When creating multiple classification images a good strategy is to find the lowest constant that works for all 
+#' classification images. This can be automatized using the \code{autoscale} function.
+#' 
+#' @export
+#' @param stimuli Vector with stimulus numbers (should be numeric) that were presented in the order of the response vector. Stimulus numbers must match those in file name of the generated stimuli
+#' @param responses Vector specifying the responses in the same order of the stimuli vector, coded 1 for original stimulus selected and -1 for inverted stimulus selected.
+#' @param baseimage String specifying which base image was used. Not the file name, but the key used in the list of base images at time of generating the stimuli.
+#' @param rdata String pointing to .RData file that was created when stimuli were generated. This file contains the contrast parameters of all generated stimuli.
+#' @param saveasjpeg Boolean stating whether to additionally save the CI as jpeg image
+#' @param filename Optional string to specify a file name for the jpeg image
+#' @param antiCI Optional boolean specifying whether antiCI instead of CI should be computed
+#' @param scaling Optional string specifying scaling method: \code{none}, \code{constant}, or \code{matched} (default)
+#' @param constant Optional number specifying the value used as constant scaling factor for the noise (only works for \code{scaling='constant'})
+#' @return List of pixel matrix of classification noise only, scaled classification noise only, base image only and combined 
+generateCI <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, filename='', antiCI=FALSE, scaling='constant', constant=0.1) {
+  
+  # Load parameter file (created when generating stimuli)
+  load(rdata)
+  
+  # Check whether critical variables have been loaded
+  if (!exists('s', envir=environment(), inherits=FALSE)) {
+    stop('File specified in rdata argument did not contain s variable.')
+  }
+  
+  if (!exists('base_faces', envir=environment(), inherits=FALSE)) {
+    stop('File specified in rdata argument did not contain base_faces variable.')
+  }
+  
+  if (!exists('stimuli_params', envir=environment(), inherits=FALSE)) {
+    stop('File specified in rdata argument did not contain stimuli_params variable.')
+  }
+  
+  # Get base image
+  base <- base_faces[[baseimage]]
+  if (is.null(base)) {
+    stop(paste0('File specified in rdata argument did not contain any reference to base image label: ', baseimage, ' (NOTE: file contains references to the following base image label(s): ', paste(names(base_faces), collapse=', '), ')'))
+  }
+  
+  
+  # Average responses for each presented stimulus (in case stimuli have been presented multiple times,
+  # or group-wise classification images are being calculated, in order to reduce memory and processing
+  # load)
+  aggregated <- aggregate(responses, by=list(stimuli=stimuli), FUN=mean)
+  responses <- aggregated$x
+  stimuli <- aggregated$stimuli
+  
+  # Retrieve parameters of actually presented stimuli (this will work with non-consecutive stims as well)
+  params <- stimuli_params[[baseimage]][stimuli,]
+  
+  # Check whether parameters were found in this .rdata file
+  if (length(params) == 0) {
+    stop(paste0('No parameters found for base image: ', base))
+  }
+  
+  # Compute classification image
+  if (antiCI) {
+    params = -params
+  } 
+  ci <- generateCINoise(params, responses, s)
+  
+  # Scale 
+  if (scaling == 'none') {
+    scaled <- ci
+  } else if (scaling == 'constant') {
+    scaled <- (ci + constant) / (2*constant)
+    if (max(scaled) > 1.0 | min(scaled) < 0) {
+      warning('Chosen constant value for constant scaling made noise of classification image exceed possible intensity range of pixels (<0 or >1). Choose a lower value, or clipping will occur.')
+    } 
+  } else if (scaling == 'matched') {
+    scaled <- min(base) + ((max(base) - min(base)) * (ci - min(ci)) / (max(ci) - min(ci)))
+  } else {
+    warning(paste0('Scaling method \'', scaling, '\' not found. Using none.'))
+    scaled <- ci
+  }
+  
+  # Combine with base image
+  combined <- (scaled + base) / 2
+  
+  # Save to file
+  if (saveasjpeg) {
+    
+    if (filename == '') {
+      filename <- paste0(baseimage, '.jpg')
+    }
+    
+    if (antiCI) {
+      filename <- paste0('antici_', filename)
+    } else {
+      filename <- paste0('ci_', filename)
+    }
+    
+    jpeg::writeJPEG(combined, filename)
+    
+  }
+  
+  # Return list
+  return(list(ci=ci, scaled=scaled, base=base, combined=combined))
+}
+
+#' Generates multiple classification images by participant or condition 
+#' 
+#' Generate classification image for any reverse correlation task that displays independently generated alternatives. 
+#' 
+#' This funcions saves the classification images by participant or condition as jpeg to a folder and returns the CIs.
+#' 
+#' @export
+#' @param data Data frame 
+#' @param by String specifying column name that specifies the smallest unit (participant, condition) to subset the data on and calculate CIs for
+#' @param stimuli String specifying column name in data frame that contains the stimulus numbers of the presented stimuli
+#' @param responses String specifying column name in data frame that contains the responses coded 1 for original stimulus selected and -1 for inverted stimulus selected.
+#' @param baseimage String specifying which base image was used. Not the file name, but the key used in the list of base images at time of generating the stimuli.
+#' @param rdata String pointing to .RData file that was created when stimuli were generated. This file contains the contrast parameters of all generated stimuli.
+#' @param saveasjpeg Boolean stating whether to additionally save the CI as jpeg image
+#' @param antiCI Optional boolean specifying whether antiCI instead of CI should be computed
+#' @param scaling Optional string specifying scaling method: \code{none}, \code{constant},  \code{matched} or \code{autoscale} (default)
+#' @param constant Optional number specifying the value used as constant scaling factor for the noise (only works for \code{scaling='constant'})
+#' @return List of classification image data structures (which are themselves lists of pixel matrix of classification noise only, scaled classification noise only, base image only and combined) 
+batchGenerateCI <- function(data, by, stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, antiCI=FALSE, scaling='autoscale', constant=0.1) {
+  
+  if (scaling == 'autoscale') {
+    doAutoscale <- TRUE
+    scaling <- 'none'
+  } else {
+    doAutoscale <- FALSE
+  }
+  
+  pb <- tcltk::tkProgressBar(title="Computing classification images",  min=0, max=length(unique(data[,by])), initial=0)
+  cis <- list()
+  counter <- 0
+  
+  for (unit in unique(data[,by])) {
+    
+    # Update progress bar
+    counter <- counter + 1
+    tcltk::setTkProgressBar(pb, counter, label=unit)
+    
+    # Get subset of data 
+    unitdata <- data[data[,by] == unit, ]
+    
+    # Specify filename for CI jpeg
+    filename <- paste0(baseimage, '_', by, '_', unitdata[1,by])
+    
+    # Compute CI with appropriate settings for this subset (Optimize later so rdata file is loaded only once)
+    cis[[filename]] <- generateCI(unitdata[,stimuli], unitdata[,responses], baseimage, rdata, saveasjpeg, paste0(filename, '.jpg'), antiCI, scaling, constant)
+  }
+  
+  if (doAutoscale) {
+    tcltk::setTkProgressBar(pb, counter, label="Autoscaling...")
+    cis <- autoscale(cis, saveasjpegs=saveasjpeg)
+  }
+  
+  close(pb)
+  return(cis)
+  
 }
