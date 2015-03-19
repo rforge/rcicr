@@ -11,7 +11,7 @@ simulateNoiseIntensities(nrep = 1000, img_size = 512)
 \item{img_size}{Size of noise pattern in pixels (one value equal for width and height)}
 }
 \value{
-Matrix with range of noise itensities for each replication
+Matrix with range of noise intensities for each replication
 }
 \description{
 Simulate pixel intensity range for noise

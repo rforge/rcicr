@@ -1,4 +1,13 @@
-Changes from 0.3.0-29 to 0.3.1-20 [18-Mar-2015]
+Changes from 0.3.1-30 to 0.3.1-31 [19-Mar-2015]
+
+* Added computeCumulativeCICorrelation. Computes cumulative trial CIs correlations with final/target CI. Use for instance for plotting curves of trial-final/target CI correlations to estimate how many trials are necessary in your task
+* Bugfix in generateCINoise: added possibility of just one stimulus/response
+* Added label parameter to batchGenerateCI, which adds custom identifiable labels to jpegs
+* Added targetpath parameter to CI generation functions, so CIs will not by default be placed in working directory, but in ./cis subdirectory
+* By default, no longer saves unscaled classification images. Added parameter saveunscaledjpeg to switch functionality
+* Suppressed warning messages if directory for stimulus or ci output already exists.
+
+Changes from 0.3.0-29 to 0.3.1-30 [18-Mar-2015]
 
 * Added batchGenerateCI to deal with data from any reverse correlation task that does not use inverse noise. This function can be used for a 1IFC, 2IFC with independently generated stimuli, 3IFC, etc. 
 * Renamed generateCI2IFC to generateCI and moved it to rcicr.R as it is a general function, and not just for 2IFC reverse correlation tasks

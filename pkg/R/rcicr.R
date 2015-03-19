@@ -121,7 +121,13 @@ generateNoiseImage <- function(params, s) {
 generateCINoise <- function(stimuli, responses, s) {
   
   weighted <- responses * stimuli
-  params <- colMeans(weighted)
+  
+  # Only aggregate if more than one stimulus/response row
+  if(is.null(dim(weighted))) {
+    params <- weighted
+  } else{
+    params <- colMeans(weighted)
+  }
   
   return(generateNoiseImage(params, s))
 }
@@ -131,8 +137,10 @@ generateCINoise <- function(stimuli, responses, s) {
 #' @export
 #' @param cis List of cis, each of which are a list containing the pixel matrices of at least the noise pattern (\code{$ci}) and if the noise patterns need to be written to jpegs, als the base image (\code{$base})
 #' @param saveasjpegs Boolean, when set to true, the autoscaled noise patterns will be combined with their respective base images and saved as jpegs (using the key of the list as name)
+#' @param targetpath Optional string specifying path to save jpegs to (default: ./cis)
 #' @return List of scaled noise patterns and determind scaling factor
-autoscale <- function(cis, saveasjpegs=TRUE) {
+autoscale <- function(cis, saveasjpegs=TRUE, targetpath='./cis') {
+  
   # Get range of each ci
   ranges <- matlab::zeros(length(names(cis)), 2)
   for (ciname in names(cis)) {
@@ -155,7 +163,10 @@ autoscale <- function(cis, saveasjpegs=TRUE) {
     # Combine and save to jpeg if necessary
     if (saveasjpegs) {
       ci <- (cis[[ciname]]$scaled + cis[[ciname]]$base) / 2
-      jpeg::writeJPEG(ci, paste0(ciname, '_autoscaled.jpg'), quality=1.0)
+      
+      dir.create(targetpath, recursive=T, showWarnings = F)
+      
+      jpeg::writeJPEG(ci, paste0(targetpath, '/', ciname, '_autoscaled.jpg'), quality=1.0)
     }
   
   }
@@ -191,12 +202,13 @@ autoscale <- function(cis, saveasjpegs=TRUE) {
 #' @param baseimage String specifying which base image was used. Not the file name, but the key used in the list of base images at time of generating the stimuli.
 #' @param rdata String pointing to .RData file that was created when stimuli were generated. This file contains the contrast parameters of all generated stimuli.
 #' @param saveasjpeg Boolean stating whether to additionally save the CI as jpeg image
+#' @param targetpath Optional string specifying path to save jpegs to (default: ./cis)
 #' @param filename Optional string to specify a file name for the jpeg image
 #' @param antiCI Optional boolean specifying whether antiCI instead of CI should be computed
 #' @param scaling Optional string specifying scaling method: \code{none}, \code{constant}, or \code{matched} (default)
 #' @param constant Optional number specifying the value used as constant scaling factor for the noise (only works for \code{scaling='constant'})
 #' @return List of pixel matrix of classification noise only, scaled classification noise only, base image only and combined 
-generateCI <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, filename='', antiCI=FALSE, scaling='constant', constant=0.1) {
+generateCI <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, filename='', targetpath='./cis', antiCI=FALSE, scaling='constant', constant=0.1) {
   
   # Load parameter file (created when generating stimuli)
   load(rdata)
@@ -273,7 +285,9 @@ generateCI <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, fi
       filename <- paste0('ci_', filename)
     }
     
-    jpeg::writeJPEG(combined, filename)
+    dir.create(targetpath, recursive=T, showWarnings = F)
+    
+    jpeg::writeJPEG(combined, paste0(targetpath, '/', filename))
     
   }
   
@@ -295,11 +309,14 @@ generateCI <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, fi
 #' @param baseimage String specifying which base image was used. Not the file name, but the key used in the list of base images at time of generating the stimuli.
 #' @param rdata String pointing to .RData file that was created when stimuli were generated. This file contains the contrast parameters of all generated stimuli.
 #' @param saveasjpeg Boolean stating whether to additionally save the CI as jpeg image
+#' @param saveunscaledjpeg Optional boolean specifying whether unscaled versions of classification images should be saved as jpeg
+#' @param targetpath Optional string specifying path to save jpegs to (default: ./cis)
+#' @param label Optional string to insert in file names of jepgs to make them easier to identify 
 #' @param antiCI Optional boolean specifying whether antiCI instead of CI should be computed
 #' @param scaling Optional string specifying scaling method: \code{none}, \code{constant},  \code{matched} or \code{autoscale} (default)
 #' @param constant Optional number specifying the value used as constant scaling factor for the noise (only works for \code{scaling='constant'})
 #' @return List of classification image data structures (which are themselves lists of pixel matrix of classification noise only, scaled classification noise only, base image only and combined) 
-batchGenerateCI <- function(data, by, stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, antiCI=FALSE, scaling='autoscale', constant=0.1) {
+batchGenerateCI <- function(data, by, stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, saveunscaledjpeg=FALSE, targetpath='./cis', label='', antiCI=FALSE, scaling='autoscale', constant=0.1) {
   
   if (scaling == 'autoscale') {
     doAutoscale <- TRUE
@@ -322,18 +339,97 @@ batchGenerateCI <- function(data, by, stimuli, responses, baseimage, rdata, save
     unitdata <- data[data[,by] == unit, ]
     
     # Specify filename for CI jpeg
-    filename <- paste0(baseimage, '_', by, '_', unitdata[1,by])
-    
+    if (label == '') {
+      filename <- paste0(baseimage, '_', by, '_', unitdata[1,by])
+    } else {
+      filename <- paste0(baseimage, '_', label, '_', by, '_', unitdata[1,by])
+    }
+
     # Compute CI with appropriate settings for this subset (Optimize later so rdata file is loaded only once)
-    cis[[filename]] <- generateCI(unitdata[,stimuli], unitdata[,responses], baseimage, rdata, saveasjpeg, paste0(filename, '.jpg'), antiCI, scaling, constant)
+    cis[[filename]] <- generateCI(unitdata[,stimuli], unitdata[,responses], baseimage, rdata, saveunscaledjpeg, paste0(filename, '.jpg'), targetpath, antiCI, scaling, constant)
   }
   
   if (doAutoscale) {
     tcltk::setTkProgressBar(pb, counter, label="Autoscaling...")
-    cis <- autoscale(cis, saveasjpegs=saveasjpeg)
+    cis <- autoscale(cis, saveasjpegs=saveasjpeg, targetpath=targetpath)
   }
   
   close(pb)
   return(cis)
   
+}
+
+
+
+
+#' Computes cumulative trial CIs correlations with final/target CI
+#' 
+#' Computes cumulative trial CIs correlations with final/target CI.
+#' 
+#' Use for instance for plotting curves of trial-final/target CI correlations to estimate how many trials are necessary in your task
+#' 
+#' @export
+#' @param stimuli Vector with stimulus numbers (should be numeric) that were presented in the order of the response vector. Stimulus numbers must match those in file name of the generated stimuli
+#' @param responses Vector specifying the responses in the same order of the stimuli vector, coded 1 for original stimulus selected and -1 for inverted stimulus selected.
+#' @param baseimage String specifying which base image was used. Not the file name, but the key used in the list of base images at time of generating the stimuli.
+#' @param rdata String pointing to .RData file that was created when stimuli were generated. This file contains the contrast parameters of all generated stimuli.
+#' @param targetci Target CI object generated with rcicr functions to correlate cumulative CIs with
+#' @param step Step size in sequence of trials to compute correlations with
+#' @return Vector containing correlation between cumulative CI and final/target CI 
+computeCumulativeCICorrelation <- function(stimuli, responses, baseimage, rdata, targetci=FALSE, step=1) {
+  
+  # Load parameter file (created when generating stimuli)
+  load(rdata)
+  
+  # Check whether critical variables have been loaded
+  if (!exists('s', envir=environment(), inherits=FALSE)) {
+    stop('File specified in rdata argument did not contain s variable.')
+  }
+  
+  if (!exists('base_faces', envir=environment(), inherits=FALSE)) {
+    stop('File specified in rdata argument did not contain base_faces variable.')
+  }
+  
+  if (!exists('stimuli_params', envir=environment(), inherits=FALSE)) {
+    stop('File specified in rdata argument did not contain stimuli_params variable.')
+  }
+  
+  # Get base image
+  base <- base_faces[[baseimage]]
+  if (is.null(base)) {
+    stop(paste0('File specified in rdata argument did not contain any reference to base image label: ', baseimage, ' (NOTE: file contains references to the following base image label(s): ', paste(names(base_faces), collapse=', '), ')'))
+  }
+  
+  
+  # Retrieve parameters of actually presented stimuli (this will work with non-consecutive stims as well)
+  params <- stimuli_params[[baseimage]][stimuli,]
+  
+  # Check whether parameters were found in this .rdata file
+  if (length(params) == 0) {
+    stop(paste0('No parameters found for base image: ', base))
+  }
+  
+  # Compute final classification image if necessary
+  if (targetci == F) {
+    finalCI <- generateCINoise(params, responses, s)
+  } else {
+    finalCI <- targetci
+  }
+  
+  # Compute correlations with final CI with cumulative CI
+  pb <- tcltk::tkProgressBar(title="Computing cumulative CI for each trial", min=0, max=length(responses), initial=0)
+  
+  correlations <- vector()
+  corcounter <- 1
+  for (trial in seq(1,length(responses), step)) {
+    tcltk::setTkProgressBar(pb, trial)
+    
+    cumCI <- generateCINoise(params[1:trial,], responses[1:trial], s)
+    correlations[corcounter] <- cor(as.vector(cumCI), as.vector(finalCI))
+    corcounter <- corcounter + 1
+  }
+  close(pb)
+ 
+  # Return correlations
+  return(correlations)
 }

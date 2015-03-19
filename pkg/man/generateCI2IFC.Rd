@@ -4,7 +4,8 @@
 \title{Generates 2IFC classification image}
 \usage{
 generateCI2IFC(stimuli, responses, baseimage, rdata, saveasjpeg = TRUE,
-  filename = "", antiCI = FALSE, scaling = "constant", constant = 0.1)
+  filename = "", targetpath = targetpath, antiCI = FALSE,
+  scaling = "constant", constant = 0.1)
 }
 \arguments{
 \item{stimuli}{Vector with stimulus numbers (should be numeric) that were presented in the order of the response vector. Stimulus numbers must match those in file name of the generated stimuli}
@@ -18,6 +19,8 @@ generateCI2IFC(stimuli, responses, baseimage, rdata, saveasjpeg = TRUE,
 \item{saveasjpeg}{Boolean stating whether to additionally save the CI as jpeg image}
 
 \item{filename}{Optional string to specify a file name for the jpeg image}
+
+\item{targetpath}{Optional string specifying path to save jpegs to (default: ./cis)}
 
 \item{antiCI}{Optional boolean specifying whether antiCI instead of CI should be computed}
 

@@ -3,6 +3,7 @@
 export(autoscale)
 export(batchGenerateCI)
 export(batchGenerateCI2IFC)
+export(computeCumulativeCICorrelation)
 export(generateCI)
 export(generateCI2IFC)
 export(generateCINoise)

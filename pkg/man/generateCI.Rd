@@ -4,7 +4,8 @@
 \title{Generates classification image}
 \usage{
 generateCI(stimuli, responses, baseimage, rdata, saveasjpeg = TRUE,
-  filename = "", antiCI = FALSE, scaling = "constant", constant = 0.1)
+  filename = "", targetpath = "./cis", antiCI = FALSE,
+  scaling = "constant", constant = 0.1)
 }
 \arguments{
 \item{stimuli}{Vector with stimulus numbers (should be numeric) that were presented in the order of the response vector. Stimulus numbers must match those in file name of the generated stimuli}
@@ -16,6 +17,8 @@ generateCI(stimuli, responses, baseimage, rdata, saveasjpeg = TRUE,
 \item{rdata}{String pointing to .RData file that was created when stimuli were generated. This file contains the contrast parameters of all generated stimuli.}
 
 \item{saveasjpeg}{Boolean stating whether to additionally save the CI as jpeg image}
+
+\item{targetpath}{Optional string specifying path to save jpegs to (default: ./cis)}
 
 \item{filename}{Optional string to specify a file name for the jpeg image}
 

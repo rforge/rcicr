@@ -3,7 +3,7 @@
 #' @export
 #' @param nrep Number of replications
 #' @param img_size Size of noise pattern in pixels (one value equal for width and height)
-#' @return Matrix with range of noise itensities for each replication 
+#' @return Matrix with range of noise intensities for each replication 
 simulateNoiseIntensities <- function(nrep=1000, img_size=512) {
   
   results <- matlab::zeros(nrep, 2)
