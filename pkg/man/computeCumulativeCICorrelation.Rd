@@ -4,7 +4,7 @@
 \title{Computes cumulative trial CIs correlations with final/target CI}
 \usage{
 computeCumulativeCICorrelation(stimuli, responses, baseimage, rdata,
-  targetci = FALSE, step = 1)
+  targetci = list(), step = 1)
 }
 \arguments{
 \item{stimuli}{Vector with stimulus numbers (should be numeric) that were presented in the order of the response vector. Stimulus numbers must match those in file name of the generated stimuli}
@@ -15,7 +15,7 @@ computeCumulativeCICorrelation(stimuli, responses, baseimage, rdata,
 
 \item{rdata}{String pointing to .RData file that was created when stimuli were generated. This file contains the contrast parameters of all generated stimuli.}
 
-\item{targetci}{Target CI object generated with rcicr functions to correlate cumulative CIs with}
+\item{targetci}{List Target CI object generated with rcicr functions to correlate cumulative CIs with}
 
 \item{step}{Step size in sequence of trials to compute correlations with}
 }

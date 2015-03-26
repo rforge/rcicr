@@ -1,3 +1,7 @@
+Changes from 0.3.1-30 to 0.3.1-32 [19-Mar-2015]
+
+* Fixed targetci bug (should be empty list by default instead of boolean) in computeCumulativeCICorrelation
+
 Changes from 0.3.1-30 to 0.3.1-31 [19-Mar-2015]
 
 * Added computeCumulativeCICorrelation. Computes cumulative trial CIs correlations with final/target CI. Use for instance for plotting curves of trial-final/target CI correlations to estimate how many trials are necessary in your task

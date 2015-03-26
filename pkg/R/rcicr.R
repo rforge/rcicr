@@ -373,10 +373,10 @@ batchGenerateCI <- function(data, by, stimuli, responses, baseimage, rdata, save
 #' @param responses Vector specifying the responses in the same order of the stimuli vector, coded 1 for original stimulus selected and -1 for inverted stimulus selected.
 #' @param baseimage String specifying which base image was used. Not the file name, but the key used in the list of base images at time of generating the stimuli.
 #' @param rdata String pointing to .RData file that was created when stimuli were generated. This file contains the contrast parameters of all generated stimuli.
-#' @param targetci Target CI object generated with rcicr functions to correlate cumulative CIs with
+#' @param targetci List Target CI object generated with rcicr functions to correlate cumulative CIs with
 #' @param step Step size in sequence of trials to compute correlations with
 #' @return Vector containing correlation between cumulative CI and final/target CI 
-computeCumulativeCICorrelation <- function(stimuli, responses, baseimage, rdata, targetci=FALSE, step=1) {
+computeCumulativeCICorrelation <- function(stimuli, responses, baseimage, rdata, targetci=list(), step=1) {
   
   # Load parameter file (created when generating stimuli)
   load(rdata)
@@ -410,10 +410,10 @@ computeCumulativeCICorrelation <- function(stimuli, responses, baseimage, rdata,
   }
   
   # Compute final classification image if necessary
-  if (targetci == F) {
+  if (length(targetci) == 0) {
     finalCI <- generateCINoise(params, responses, s)
   } else {
-    finalCI <- targetci
+    finalCI <- targetci$ci
   }
   
   # Compute correlations with final CI with cumulative CI
