@@ -102,9 +102,9 @@ generateNoisePattern <- function(img_size=512, pre_0.3.0=FALSE) {
 #' @param s 3D sinusoid matrix (generated using \code{generateNoisePattern()})
 #' @return The noise pattern as pixel matrix
 #' @examples
-#' params <- rnorm(4092) # generates 4092 normally distributed random values
-#' s <- generateNoisePattern(img_size=256)
-#' noise <- generateNoiseImage(params, s)
+#' #params <- rnorm(4092) # generates 4092 normally distributed random values
+#' #s <- generateNoisePattern(img_size=256)
+#' #noise <- generateNoiseImage(params, s)
 generateNoiseImage <- function(params, s) {
   noise <- apply(s$sinusoids * array(params[s$sinIdx], dim(s$sinusoids)), 1:2, mean)
   return(noise)

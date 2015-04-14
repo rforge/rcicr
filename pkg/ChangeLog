@@ -1,6 +1,7 @@
-Changes from 0.3.1-30 to 0.3.1-32 [19-Mar-2015]
+Changes from 0.3.1-30 to 0.3.1-33 [19-Mar-2015]
 
 * Fixed targetci bug (should be empty list by default instead of boolean) in computeCumulativeCICorrelation
+* Removed examples in generateNoiseImage to deal with R-Forge's imposed memory limits
 
 Changes from 0.3.1-30 to 0.3.1-31 [19-Mar-2015]
 
