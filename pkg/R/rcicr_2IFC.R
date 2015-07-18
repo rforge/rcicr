@@ -74,12 +74,12 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
   }
   
   # Generate stimuli #
+  pb <- dplyr::progress_estimated(n_trials)
   
-  pb <- tcltk::tkProgressBar(title="Generating stimuli for all base faces", label=paste0("trials:", n_trials, " base faces:", length(base_faces)), min=0, max=n_trials, initial=0)
   stimuli <- matlab::zeros(img_size, img_size, n_trials)
   
   for (trial in 1:n_trials) {
-    tcltk::setTkProgressBar(pb, trial)
+    pb$tick()$print()
     
     if (use_same_parameters) {
       # compute noise pattern, can be used for all base faces
@@ -113,7 +113,7 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
     }
   }
   
-  close(pb)  
+  pb$stop()
   
   # Save all to image file (IMPORTANT, this file is necessary to analyze your data later and create classification images)
   generator_version <- '0.3.0'
@@ -194,16 +194,14 @@ batchGenerateCI2IFC <- function(data, by, stimuli, responses, baseimage, rdata, 
     doAutoscale <- FALSE
   }
   
-  pb <- tcltk::tkProgressBar(title="Computing classification images",  min=0, max=length(unique(data[,by])), initial=0)
+  pb <- dplyr::progress_estimated(length(unique(data[,by])))
   cis <- list()
-  counter <- 0
-  
+
   for (unit in unique(data[,by])) {
     
     # Update progress bar
-    counter <- counter + 1
-    tcltk::setTkProgressBar(pb, counter, label=unit)
-    
+    pb$tick()$print()
+
     # Get subset of data 
     unitdata <- data[data[,by] == unit, ]
     
@@ -219,11 +217,10 @@ batchGenerateCI2IFC <- function(data, by, stimuli, responses, baseimage, rdata, 
   }
   
   if (doAutoscale) {
-    tcltk::setTkProgressBar(pb, counter, label="Autoscaling...")
     cis <- autoscale(cis, saveasjpegs=saveasjpeg, targetpath=targetpath)
   }
   
-  close(pb)
+  pb$stop()
   return(cis)
 
 }

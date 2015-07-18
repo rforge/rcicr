@@ -1,3 +1,7 @@
+Changes from 0.3.1-33 to 0.3.2-34 [18-Jul-2015]
+
+* Changed progressbar to dplyr progress bar, no longer dependent on tcltk (so no more dependency on xquartz on OS X). Also adds time estimation.
+
 Changes from 0.3.1-30 to 0.3.1-33 [19-Mar-2015]
 
 * Fixed targetci bug (should be empty list by default instead of boolean) in computeCumulativeCICorrelation

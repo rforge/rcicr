@@ -325,15 +325,13 @@ batchGenerateCI <- function(data, by, stimuli, responses, baseimage, rdata, save
     doAutoscale <- FALSE
   }
   
-  pb <- tcltk::tkProgressBar(title="Computing classification images",  min=0, max=length(unique(data[,by])), initial=0)
+  pb <- dplyr::progress_estimated(length(unique(data[,by])))
   cis <- list()
-  counter <- 0
-  
+
   for (unit in unique(data[,by])) {
     
     # Update progress bar
-    counter <- counter + 1
-    tcltk::setTkProgressBar(pb, counter, label=unit)
+    pb$tick()$print()
     
     # Get subset of data 
     unitdata <- data[data[,by] == unit, ]
@@ -350,11 +348,10 @@ batchGenerateCI <- function(data, by, stimuli, responses, baseimage, rdata, save
   }
   
   if (doAutoscale) {
-    tcltk::setTkProgressBar(pb, counter, label="Autoscaling...")
     cis <- autoscale(cis, saveasjpegs=saveasjpeg, targetpath=targetpath)
   }
   
-  close(pb)
+  pb$stop()
   return(cis)
   
 }
@@ -417,18 +414,18 @@ computeCumulativeCICorrelation <- function(stimuli, responses, baseimage, rdata,
   }
   
   # Compute correlations with final CI with cumulative CI
-  pb <- tcltk::tkProgressBar(title="Computing cumulative CI for each trial", min=0, max=length(responses), initial=0)
+  pb <- dplyr::progress_estimated(length(responses))
   
   correlations <- vector()
   corcounter <- 1
   for (trial in seq(1,length(responses), step)) {
-    tcltk::setTkProgressBar(pb, trial)
+    pb$tick()$print()
     
     cumCI <- generateCINoise(params[1:trial,], responses[1:trial], s)
     correlations[corcounter] <- cor(as.vector(cumCI), as.vector(finalCI))
     corcounter <- corcounter + 1
   }
-  close(pb)
+  pb$stop()
  
   # Return correlations
   return(correlations)
