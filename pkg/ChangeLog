@@ -1,5 +1,5 @@
 
-Changes from 0.3.2-34 to 0.3.2-36 [20-Jul-2015]
+Changes from 0.3.2-34 to 0.3.2-37 [20-Jul-2015]
 
 * Added import and importFrom statements to function to comply with new R version package requirements
 * Updated DESCRIPTION to be slighlty more informative
