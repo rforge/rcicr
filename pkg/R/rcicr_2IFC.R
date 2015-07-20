@@ -7,6 +7,10 @@
 #' .Rdata file contains the parameters that were used to generate each stimulus.
 #' 
 #' @export
+#' @import matlab
+#' @import dplyr
+#' @import jpeg
+#' @importFrom stats runif
 #' @param base_face_files List containing base face file names (jpegs) used as base images for stimuli
 #' @param n_trials Number specifying how many trials the task will have (function will generate two images for each trial per base image: original and inverted/negative noise)
 #' @param img_size Number specifying the number of pixels that the stimulus image will span horizontally and vertically (will be square, so only one integer needed)
@@ -171,6 +175,7 @@ generateCI2IFC <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE
 #' This funcions saves the classification images by participant or condition as jpeg to a folder and returns the CIs.
 #' 
 #' @export
+#' @import dplyr
 #' @param data Data frame 
 #' @param by String specifying column name that specifies the smallest unit (participant, condition) to subset the data on and calculate CIs for
 #' @param stimuli String specifying column name in data frame that contains the stimulus numbers of the presented stimuli

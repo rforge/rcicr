@@ -4,6 +4,8 @@
 #' Generate single sinusoid patch
 #'
 #' @export
+#' @import aspace
+#' @import matlab
 #' @param img_size Integer specifying size of sinusoid patch in number of pixels
 #' @param cycles Integer specifying number of cycles sinusoid should span
 #' @param angle Value specifying the angle (rotation) of the sinusoid
@@ -26,6 +28,7 @@ generateSinusoid <- function(img_size, cycles, angle, phase, contrast) {
 #' Generate sinusoid noise pattern
 #' 
 #' @export
+#' @import matlab
 #' @param img_size Integer specifying size of the noise pattern in number of pixels
 #' @param pre_0.3.0 Boolean specifying whether the noise pattern should be created in a way compatible with older versions of rcicr (< 0.3.0). If you are starting a new project, you should keep this at the default setting (FALSE). There is no reason to set this to TRUE, with the sole exception to recreate behavior of rcicr prior to version 0.3.0.  
 #' @return List with two elements: the 3D sinusoid matrix with size \code{img_size}, and and indexing
@@ -135,6 +138,8 @@ generateCINoise <- function(stimuli, responses, s) {
 #' Determines optimal scaling constant for a list of ci's
 #' 
 #' @export
+#' @import matlab
+#' @import jpeg
 #' @param cis List of cis, each of which are a list containing the pixel matrices of at least the noise pattern (\code{$ci}) and if the noise patterns need to be written to jpegs, als the base image (\code{$base})
 #' @param saveasjpegs Boolean, when set to true, the autoscaled noise patterns will be combined with their respective base images and saved as jpegs (using the key of the list as name)
 #' @param targetpath Optional string specifying path to save jpegs to (default: ./cis)
@@ -197,6 +202,8 @@ autoscale <- function(cis, saveasjpegs=TRUE, targetpath='./cis') {
 #' classification images. This can be automatized using the \code{autoscale} function.
 #' 
 #' @export
+#' @import jpeg
+#' @importFrom stats aggregate
 #' @param stimuli Vector with stimulus numbers (should be numeric) that were presented in the order of the response vector. Stimulus numbers must match those in file name of the generated stimuli
 #' @param responses Vector specifying the responses in the same order of the stimuli vector, coded 1 for original stimulus selected and -1 for inverted stimulus selected.
 #' @param baseimage String specifying which base image was used. Not the file name, but the key used in the list of base images at time of generating the stimuli.
@@ -302,6 +309,7 @@ generateCI <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, fi
 #' This funcions saves the classification images by participant or condition as jpeg to a folder and returns the CIs.
 #' 
 #' @export
+#' @import dplyr
 #' @param data Data frame 
 #' @param by String specifying column name that specifies the smallest unit (participant, condition) to subset the data on and calculate CIs for
 #' @param stimuli String specifying column name in data frame that contains the stimulus numbers of the presented stimuli
@@ -366,6 +374,8 @@ batchGenerateCI <- function(data, by, stimuli, responses, baseimage, rdata, save
 #' Use for instance for plotting curves of trial-final/target CI correlations to estimate how many trials are necessary in your task
 #' 
 #' @export
+#' @import dplyr
+#' @importFrom stats cor
 #' @param stimuli Vector with stimulus numbers (should be numeric) that were presented in the order of the response vector. Stimulus numbers must match those in file name of the generated stimuli
 #' @param responses Vector specifying the responses in the same order of the stimuli vector, coded 1 for original stimulus selected and -1 for inverted stimulus selected.
 #' @param baseimage String specifying which base image was used. Not the file name, but the key used in the list of base images at time of generating the stimuli.
