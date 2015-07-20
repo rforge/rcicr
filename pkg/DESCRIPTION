@@ -6,6 +6,6 @@ Date: 2015-07-28
 URL: http://ron.dotsch.org/rcicr
 Author: Ron Dotsch <rdotsch@gmail.com>
 Maintainer: Ron Dotsch <rdotsch@gmail.com>
-Description: Functions to generate stimuli and analyze data of reverse correlation image classification experiments.
+Description: Functions to generate stimuli and analyze data of reverse correlation image classification experiments (psychophysical tasks aimed at visualizing internal representations).
 License: GPL-2
 Imports: matlab, aspace, jpeg, dplyr
