@@ -159,7 +159,7 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
 #' @param scaling Optional string specifying scaling method: \code{none}, \code{constant}, or \code{matched} (default)
 #' @param constant Optional number specifying the value used as constant scaling factor for the noise (only works for \code{scaling='constant'})
 #' @return List of pixel matrix of classification noise only, scaled classification noise only, base image only and combined 
-generateCI2IFC <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, filename='', targetpath=targetpath, antiCI=FALSE, scaling='constant', constant=0.1) {
+generateCI2IFC <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, filename='', targetpath="./cis", antiCI=FALSE, scaling='constant', constant=0.1) {
   
   # For backwards compatibility  
   return(generateCI(stimuli, responses, baseimage, rdata, saveasjpeg, filename, targetpath, antiCI, scaling, constant))

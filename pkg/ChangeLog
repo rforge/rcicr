@@ -1,3 +1,6 @@
+Changes from 0.3.2-37 to 0.3.2-38 [25-Aug-2015]
+
+* Bugfix: target path error message for generateCI2IFC()
 
 Changes from 0.3.2-34 to 0.3.2-37 [20-Jul-2015]
 
