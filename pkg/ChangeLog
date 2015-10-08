@@ -1,3 +1,7 @@
+Changes from 0.3.2-37 to 0.3.2.1-39 [8-Oct-2015]
+
+* Bugfix: NA's in by parameter of batchGenerateCI2IFC() get ignored instead of making R crash. Thank you Elze Ufkes for reporting this bug!
+
 Changes from 0.3.2-37 to 0.3.2-38 [25-Aug-2015]
 
 * Bugfix: target path error message for generateCI2IFC()

@@ -199,11 +199,16 @@ batchGenerateCI2IFC <- function(data, by, stimuli, responses, baseimage, rdata, 
     doAutoscale <- FALSE
   }
   
-  pb <- dplyr::progress_estimated(length(unique(data[,by])))
   cis <- list()
+  
+  # Remove by = NA's from data
+  data <- data[!is.na(data[,by]), ]
 
-  for (unit in unique(data[,by])) {
-    
+  by.levels <- unique(data[,by])
+  pb <- dplyr::progress_estimated(length(by.levels))
+  
+  for (unit in by.levels) {
+
     # Update progress bar
     pb$tick()$print()
 

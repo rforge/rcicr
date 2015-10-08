@@ -5,7 +5,7 @@
 \title{Generates 2IFC classification image}
 \usage{
 generateCI2IFC(stimuli, responses, baseimage, rdata, saveasjpeg = TRUE,
-  filename = "", targetpath = targetpath, antiCI = FALSE,
+  filename = "", targetpath = "./cis", antiCI = FALSE,
   scaling = "constant", constant = 0.1)
 }
 \arguments{
