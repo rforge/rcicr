@@ -19,11 +19,14 @@
 #' @param use_same_parameters Boolean specifying whether for each base image, the same set of parameters is used, or unique set is created for each base image
 #' @param seed Integer seeding the random number generator (for reproducibility)
 #' @param maximize_baseimage_contrast Boolean specifying wheter the pixel values of the base image should be rescaled to maximize its contrast. 
+#' @param noise_type String specifying noise pattern type (defaults to \code{sinusoid}; other options: \code{gabor}).
+#' @param nscales Integer specifying the number of incremental spatial scales. Defaults to 5. Higher numbers will add higher spatial frequency scales.
+#' @param sigma Number specifying the sigma of the Gabor patch if noise_type is set to \code{gabor} (defaults to 25)
 #' @return Nothing, everything is saved to files. 
-generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, stimulus_path='./stimuli', label='rcic', use_same_parameters=TRUE, seed=1, maximize_baseimage_contrast=TRUE) {
+generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, stimulus_path='./stimuli', label='rcic', use_same_parameters=TRUE, seed=1, maximize_baseimage_contrast=TRUE, noise_type='sinusoid', nscales=5, sigma=25) {
   
   # Initalize #
-  s <- generateNoisePattern(img_size)
+  p <- generateNoisePattern(img_size, noise_type=noise_type, nscales=nscales, sigma=sigma)
   dir.create(stimulus_path, recursive=T, showWarnings = F)
   set.seed(seed)
   
@@ -51,13 +54,16 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
     base_faces[[base_face]] <- img
   }
   
+  # Compute number of parameters needed  #
+  nparams <- sum(6*2*(2^(0:(nscales-1)))^2)
+  
   # Generate parameters #
   if (use_same_parameters) {
     
     # Generate stimuli parameters, one set for all base faces
-    params <- matlab::zeros(n_trials, 4092)
+    params <- matlab::zeros(n_trials, nparams)
     for (trial in 1:n_trials) {  
-      params[trial,] <- (runif(4092) * 2) - 1
+      params[trial,] <- (runif(nparams) * 2) - 1
     }    
     
     # Assign to each base face the same set
@@ -69,9 +75,9 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
   } else {
     for (base_face in names(base_faces)) {
       # Generate stimuli parameters, unique to each base face
-      stimuli_params[[base_face]] <- matlab::zeros(n_trials, 4092)  
+      stimuli_params[[base_face]] <- matlab::zeros(n_trials, nparams)  
       for (trial in 1:n_trials) { 
-        stimuli_params[[base_face]][trial,] <- (runif(4092) * 2) - 1
+        stimuli_params[[base_face]][trial,] <- (runif(nparams) * 2) - 1
       }    
     }
     
@@ -87,13 +93,13 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
     
     if (use_same_parameters) {
       # compute noise pattern, can be used for all base faces
-      stimuli[,,trial] <- generateNoiseImage(stimuli_params[[base_face]][trial,], s) 
+      stimuli[,,trial] <- generateNoiseImage(stimuli_params[[base_face]][trial,], p) 
     }
     
     for (base_face in names(base_faces)) {
       if (!use_same_parameters) {
         # compute noise pattern unique to this base face
-        stimuli[,,trial] <- generateNoiseImage(stimuli_params[[base_face]][trial,], s)        
+        stimuli[,,trial] <- generateNoiseImage(stimuli_params[[base_face]][trial,], p)        
       }
       
       # Scale noise (based on simulations, most values fall within this range [-0.3, 0.3], test
@@ -120,9 +126,8 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
   pb$stop()
   
   # Save all to image file (IMPORTANT, this file is necessary to analyze your data later and create classification images)
-  generator_version <- '0.3.0'
-  save(base_face_files, base_faces, img_size, label, n_trials, s, seed, stimuli_params, stimulus_path, trial, use_same_parameters, generator_version, file=paste(stimulus_path, paste(label, "seed", seed, "time", format(Sys.time(), format="%b_%d_%Y_%H_%M.Rdata"), sep="_"), sep='/'), envir=environment())
-  
+  generator_version <- '0.3.3'
+  save(base_face_files, base_faces, img_size, label, n_trials, noise_type, p, seed, stimuli_params, stimulus_path, trial, use_same_parameters, generator_version, file=paste(stimulus_path, paste(label, "seed", seed, "time", format(Sys.time(), format="%b_%d_%Y_%H_%M.Rdata"), sep="_"), sep='/'), envir=environment())
   
 }
 
@@ -235,6 +240,4 @@ batchGenerateCI2IFC <- function(data, by, stimuli, responses, baseimage, rdata, 
 
 }
 
-# Suppress checking notes for variables loaded at runtime from .RData files
-if(getRversion() >= "2.15.1")  utils::globalVariables(c("s", "base_faces", "stimuli_params"))
 

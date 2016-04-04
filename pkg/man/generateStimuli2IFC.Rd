@@ -6,7 +6,8 @@
 \usage{
 generateStimuli2IFC(base_face_files, n_trials = 770, img_size = 512,
   stimulus_path = "./stimuli", label = "rcic", use_same_parameters = TRUE,
-  seed = 1, maximize_baseimage_contrast = TRUE)
+  seed = 1, maximize_baseimage_contrast = TRUE, noise_type = "sinusoid",
+  nscales = 5, sigma = 25)
 }
 \arguments{
 \item{base_face_files}{List containing base face file names (jpegs) used as base images for stimuli}
@@ -24,6 +25,12 @@ generateStimuli2IFC(base_face_files, n_trials = 770, img_size = 512,
 \item{seed}{Integer seeding the random number generator (for reproducibility)}
 
 \item{maximize_baseimage_contrast}{Boolean specifying wheter the pixel values of the base image should be rescaled to maximize its contrast.}
+
+\item{noise_type}{String specifying noise pattern type (defaults to \code{sinusoid}; other options: \code{gabor}).}
+
+\item{nscales}{Integer specifying the number of incremental spatial scales. Defaults to 5. Higher numbers will add higher spatial frequency scales.}
+
+\item{sigma}{Number specifying the sigma of the Gabor patch if noise_type is set to \code{gabor} (defaults to 25)}
 }
 \value{
 Nothing, everything is saved to files.

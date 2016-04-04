@@ -25,62 +25,92 @@ generateSinusoid <- function(img_size, cycles, angle, phase, contrast) {
 }
 
 
+
+#' Generate single gabor patch
+#'
+#' @export
+#' @import matlab
+#' @import scales
+#' @param img_size Integer specifying size of gabor patch in number of pixels
+#' @param cycles Integer specifying number of cycles the sinusoid should span
+#' @param angle Value specifying the angle (rotation) of the sinusoid
+#' @param phase Value specifying phase of sinusoid
+#' @param sigma of guassian mask on top of sinusoid
+#' @param contrast Value between -1.0 and 1.0 specifying contrast of sinusoid
+#' @return The sinusoid image with size \code{img_size}.
+#' @examples
+#' generateSinusoid(512, 2, 90, pi/2, 1.0)
+generateGabor <- function(img_size, cycles, angle, phase, sigma, contrast) {
+  
+  s <- generateSinusoid(img_size, cycles, angle, phase, contrast) 
+  x0 <- scales::rescale(1:img_size, to= c(-.5,.5))
+  gauss <- matlab::meshgrid(x0, x0)
+  gauss_mask = exp( -(((gauss$x^2)+(gauss$y^2)) / (2* (sigma/img_size)^2)) )
+  return(gauss_mask * s)
+
+}
+
 #' Generate sinusoid noise pattern
 #' 
 #' @export
 #' @import matlab
 #' @param img_size Integer specifying size of the noise pattern in number of pixels
+#' @param nscales Integer specifying the number of incremental spatial scales. Defaults to 5. Higher numbers will add higher spatial frequency scales.
+#' @param noise_type String specifying noise pattern type (defaults to \code{sinusoid}; other options: \code{gabor}).
+#' @param sigma Number specifying the sigma of the Gabor patch if noise_type is set to \code{gabor} (defaults to 25)
 #' @param pre_0.3.0 Boolean specifying whether the noise pattern should be created in a way compatible with older versions of rcicr (< 0.3.0). If you are starting a new project, you should keep this at the default setting (FALSE). There is no reason to set this to TRUE, with the sole exception to recreate behavior of rcicr prior to version 0.3.0.  
-#' @return List with two elements: the 3D sinusoid matrix with size \code{img_size}, and and indexing
+#' @return List with two elements: the 3D noise matrix with size \code{img_size}, and and indexing
 #' matrix with the same size to easily change contrasts.
 #' @examples
 #' generateNoisePattern(256)
-generateNoisePattern <- function(img_size=512, pre_0.3.0=FALSE) {
+generateNoisePattern <- function(img_size=512, nscales=5, noise_type='sinusoid', sigma=25, pre_0.3.0=FALSE) {
   # Settings of sinusoids
-  scales <- c(1, 2, 4, 8, 16)
   orientations <- c(0, 30, 60, 90, 120, 150)
   phases <- c(0, pi/2)
-  
-  # Size of sinusoids per scale
+  scales <- 2^(0:(nscales-1))
+               
+  # Size of patches per scale
   mg <- matlab::meshgrid(1:img_size, 1:img_size,1:length(scales))
-  x <- mg$x
-  y <- mg$y
-  rm(mg)
-  sinSize = x / y
+  patchSize = mg$x / mg$y
   
-  # Number of sinsoids needed
-  nrSin = length(scales) * length(orientations) * length(phases)
+  # Number of patch layers needed
+  nrPatches = length(scales) * length(orientations) * length(phases)
   
   # Pre allocate memory
-  sinusoids = matlab::zeros(c(img_size, img_size, nrSin))
-  sinIdx = matlab::zeros(c(img_size, img_size, nrSin))
+  patches = matlab::zeros(c(img_size, img_size, nrPatches))
+  patchIdx = matlab::zeros(c(img_size, img_size, nrPatches))
   
   # counters
   
   if (pre_0.3.0) {
-    co = 0 # sinusoid layer counter
+    co = 0 # patch layer counter
     idx = 0 # contrast index counter
   } else {
-    co = 1 # sinusoid layer counter
+    co = 1 # patch layer counter
     idx = 1 # contrast index counter
   }
   
   for (scale in scales) {
     for (orientation in orientations) {
       for (phase in phases) {
-        # Generate single sinusoid
-        size <- sinSize[scale, img_size]
-        s <- generateSinusoid(size, 2, orientation, phase, 1)
+        # Generate single patch
+        size <- patchSize[scale, img_size]
+        
+        if (noise_type=='gabor') {
+          p <- generateGabor(size, 1.5, orientation, phase, sigma, 1)
+        } else {
+          p <- generateSinusoid(size, 2, orientation, phase, 1)
+        }
         
         # Repeat to fill scale
-        sinusoids[,,co] <- matlab::repmat(s, scale, scale)
+        patches[,,co] <- matlab::repmat(p, scale, scale)
         
         # Create index matrix
         for (col in 1:scale) {
           for (row in 1:scale) {
             
             # insert absolute index for later contrast weighting
-            sinIdx[(size * (row-1) + 1) : (size * row), (size * (col-1) + 1) : (size * col), co] = idx
+            patchIdx[(size * (row-1) + 1) : (size * row), (size * (col-1) + 1) : (size * col), co] = idx
             
             # Update contrast counter
             idx = idx + 1
@@ -94,23 +124,33 @@ generateNoisePattern <- function(img_size=512, pre_0.3.0=FALSE) {
       }
     }
   }
-  return(list(sinusoids=sinusoids, sinIdx=sinIdx))
+  
+  return(list(patches=patches, patchIdx=patchIdx, noise_type=noise_type, generator_version=packageVersion('rcicr')))
 }
 
 
 #' Generate single noise image based on parameter vector
 #' 
 #' @export
-#' @param params Vector with 4092 values specifying the contrast of each sinusoid in noise
-#' @param s 3D sinusoid matrix (generated using \code{generateNoisePattern()})
+#' @param params Vector with each value specifying the contrast of each patch in noise
+#' @param p 3D patch matrix (generated using \code{generateNoisePattern()})
 #' @return The noise pattern as pixel matrix
 #' @examples
 #' #params <- rnorm(4092) # generates 4092 normally distributed random values
 #' #s <- generateNoisePattern(img_size=256)
-#' #noise <- generateNoiseImage(params, s)
-generateNoiseImage <- function(params, s) {
-  noise <- apply(s$sinusoids * array(params[s$sinIdx], dim(s$sinusoids)), 1:2, mean)
+#' #noise <- generateNoiseImage(params, p)
+generateNoiseImage <- function(params, p) {
+  
+  if ('sinusoids' %in% names(p)) {
+    # Pre 0.3.3 noise pattern, rename for appropriate use
+    p <- list(patches=p$sinusoids, patchIdx=p$sinIdx, noise_type='sinusoid')
+  }
+  
+  # TODO: Insert user friendly warning if number of params does not equal number of patches
+  
+  noise <- apply(p$patches * array(params[p$patchIdx], dim(p$patches)), 1:2, mean)
   return(noise)
+
 }
 
 #' Generate classification image noise pattern based on set of stimuli (matrix: trials, parameters), responses (vector), and sinusoid
@@ -119,9 +159,9 @@ generateNoiseImage <- function(params, s) {
 #' @param stimuli Matrix with one row per trial, each row containing the 4092 parameters for the original stimulus
 #' @param responses Vector containing the response to each trial (1 if participant selected original , -1 if participant selected inverted;
 #' this can be changed into a scale)
-#' @param s 3D sinusoid matrix (generated using \code{generateNoisePattern()})
+#' @param p 3D patch matrix (generated using \code{generateNoisePattern()})
 #' @return The classification image as pixel matrix
-generateCINoise <- function(stimuli, responses, s) {
+generateCINoise <- function(stimuli, responses, p) {
   
   weighted <- responses * stimuli
   
@@ -132,7 +172,7 @@ generateCINoise <- function(stimuli, responses, s) {
     params <- colMeans(weighted)
   }
   
-  return(generateNoiseImage(params, s))
+  return(generateNoiseImage(params, p))
 }
 
 #' Determines optimal scaling constant for a list of ci's
@@ -159,7 +199,7 @@ autoscale <- function(cis, saveasjpegs=TRUE, targetpath='./cis') {
     constant <- max(ranges[,2])
   }
 
-  print(paste0("Using scaling factor constant:", constant))
+  write(paste0("Using scaling factor constant:", constant), stdout())
   
   # Scale all noise patterns
   for (ciname in names(cis)) {
@@ -176,7 +216,6 @@ autoscale <- function(cis, saveasjpegs=TRUE, targetpath='./cis') {
   
   }
 
-  cis[['autoscaling.constant']] <- constant
   return(cis)
 }
 
@@ -221,8 +260,8 @@ generateCI <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, fi
   load(rdata)
   
   # Check whether critical variables have been loaded
-  if (!exists('s', envir=environment(), inherits=FALSE)) {
-    stop('File specified in rdata argument did not contain s variable.')
+  if (!exists('s', envir=environment(), inherits=FALSE) & !exists('p', envir=environment(), inherits=FALSE) ) {
+    stop('File specified in rdata argument did not contain s or p variable.')
   }
   
   if (!exists('base_faces', envir=environment(), inherits=FALSE)) {
@@ -231,6 +270,12 @@ generateCI <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, fi
   
   if (!exists('stimuli_params', envir=environment(), inherits=FALSE)) {
     stop('File specified in rdata argument did not contain stimuli_params variable.')
+  }
+  
+  # Convert s to p (if rdata file originates from pre-0.3.3)
+  if (exists('s', envir=environment(), inherits=FALSE)) {
+    p <- list(patches=s$sinusoids, patchIdx=s$sinIdx, noise_type='sinusoid')
+    rm(s)
   }
   
   # Get base image
@@ -255,11 +300,17 @@ generateCI <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, fi
     stop(paste0('No parameters found for base image: ', base))
   }
   
+  # Check whether number of parameters are 4096 (this was the case in older versions of rcicr)
+  # and should be truncated to 4092 to work well in this new version
+  if (ncol(params) == 4096) {
+    params <- params[, 1:4092]
+  }
+  
   # Compute classification image
   if (antiCI) {
     params = -params
   } 
-  ci <- generateCINoise(params, responses, s)
+  ci <- generateCINoise(params, responses, p)
   
   # Scale 
   if (scaling == 'none') {
@@ -366,7 +417,6 @@ batchGenerateCI <- function(data, by, stimuli, responses, baseimage, rdata, save
 
 
 
-
 #' Computes cumulative trial CIs correlations with final/target CI
 #' 
 #' Computes cumulative trial CIs correlations with final/target CI.
@@ -389,8 +439,8 @@ computeCumulativeCICorrelation <- function(stimuli, responses, baseimage, rdata,
   load(rdata)
   
   # Check whether critical variables have been loaded
-  if (!exists('s', envir=environment(), inherits=FALSE)) {
-    stop('File specified in rdata argument did not contain s variable.')
+  if (!exists('s', envir=environment(), inherits=FALSE) & !exists('p', envir=environment(), inherits=FALSE) ) {
+    stop('File specified in rdata argument did not contain s or p variable.')
   }
   
   if (!exists('base_faces', envir=environment(), inherits=FALSE)) {
@@ -400,6 +450,13 @@ computeCumulativeCICorrelation <- function(stimuli, responses, baseimage, rdata,
   if (!exists('stimuli_params', envir=environment(), inherits=FALSE)) {
     stop('File specified in rdata argument did not contain stimuli_params variable.')
   }
+  
+  # Convert s to p (if rdata file originates from pre-0.3.3)
+  if (exists('s', envir=environment(), inherits=FALSE)) {
+    p <- list(patches=s$sinusoids, patchIdx=s$sinIdx, noise_type='sinusoid')
+    rm(s)
+  }
+  
   
   # Get base image
   base <- base_faces[[baseimage]]
@@ -418,7 +475,7 @@ computeCumulativeCICorrelation <- function(stimuli, responses, baseimage, rdata,
   
   # Compute final classification image if necessary
   if (length(targetci) == 0) {
-    finalCI <- generateCINoise(params, responses, s)
+    finalCI <- generateCINoise(params, responses, p)
   } else {
     finalCI <- targetci$ci
   }
@@ -431,7 +488,7 @@ computeCumulativeCICorrelation <- function(stimuli, responses, baseimage, rdata,
   for (trial in seq(1,length(responses), step)) {
     pb$tick()$print()
     
-    cumCI <- generateCINoise(params[1:trial,], responses[1:trial], s)
+    cumCI <- generateCINoise(params[1:trial,], responses[1:trial], p)
     correlations[corcounter] <- cor(as.vector(cumCI), as.vector(finalCI))
     corcounter <- corcounter + 1
   }
@@ -440,3 +497,6 @@ computeCumulativeCICorrelation <- function(stimuli, responses, baseimage, rdata,
   # Return correlations
   return(correlations)
 }
+
+# Suppress checking notes for variables loaded at runtime from .RData files
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("p", "s", "base_faces", "stimuli_params"))

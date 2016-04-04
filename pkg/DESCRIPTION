@@ -1,11 +1,11 @@
 Package: rcicr
 Type: Package
 Title: Reverse-Correlation Image-Classification Toolbox
-Version: 0.3.2.1
+Version: 0.3.3
 Date: 2015-10-08
 URL: http://ron.dotsch.org/rcicr
-Author: Ron Dotsch <rdotsch@gmail.com>
-Maintainer: Ron Dotsch <rdotsch@gmail.com>
+Author: Ron Dotsch <r.dotsch@uu.nl>
+Maintainer: Ron Dotsch <r.dotsch@uu.nl>
 Description: Functions to generate stimuli and analyze data of reverse correlation image classification experiments (psychophysical tasks aimed at visualizing cognitive mental representations of faces).
 License: GPL-2
-Imports: matlab, aspace, jpeg, dplyr
+Imports: matlab, aspace, jpeg, dplyr, scales

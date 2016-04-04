@@ -4,12 +4,12 @@
 \alias{generateNoiseImage}
 \title{Generate single noise image based on parameter vector}
 \usage{
-generateNoiseImage(params, s)
+generateNoiseImage(params, p)
 }
 \arguments{
-\item{params}{Vector with 4092 values specifying the contrast of each sinusoid in noise}
+\item{params}{Vector with each value specifying the contrast of each patch in noise}
 
-\item{s}{3D sinusoid matrix (generated using \code{generateNoisePattern()})}
+\item{p}{3D patch matrix (generated using \code{generateNoisePattern()})}
 }
 \value{
 The noise pattern as pixel matrix
@@ -20,6 +20,6 @@ Generate single noise image based on parameter vector
 \examples{
 #params <- rnorm(4092) # generates 4092 normally distributed random values
 #s <- generateNoisePattern(img_size=256)
-#noise <- generateNoiseImage(params, s)
+#noise <- generateNoiseImage(params, p)
 }
 
