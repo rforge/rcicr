@@ -125,7 +125,7 @@ generateNoisePattern <- function(img_size=512, nscales=5, noise_type='sinusoid',
     }
   }
   
-  return(list(patches=patches, patchIdx=patchIdx, noise_type=noise_type, generator_version=packageVersion('rcicr')))
+  return(list(patches=patches, patchIdx=patchIdx, noise_type=noise_type, generator_version=utils::packageVersion('rcicr')))
 }
 
 

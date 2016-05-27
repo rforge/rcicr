@@ -1,3 +1,7 @@
+Changes from 0.3.3-40 to 0.3.3-41 [27-May-2016]
+
+* Fixed reference to packageVersion which produced a note in CRAN check.
+
 Changes from 0.3.2-39 to 0.3.3-40 [4-Apr-2016]
 
 * Added Gabor noise option. Generate stimuli with generateStimuli2IFC(..., noise_type='gabor'). Almost all functions have been affected in refactoring. 
