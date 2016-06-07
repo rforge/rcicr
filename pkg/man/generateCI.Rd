@@ -25,7 +25,7 @@ generateCI(stimuli, responses, baseimage, rdata, saveasjpeg = TRUE,
 
 \item{antiCI}{Optional boolean specifying whether antiCI instead of CI should be computed}
 
-\item{scaling}{Optional string specifying scaling method: \code{none}, \code{constant}, or \code{matched} (default)}
+\item{scaling}{Optional string specifying scaling method: \code{none}, \code{constant}, or \code{independent} (default)}
 
 \item{constant}{Optional number specifying the value used as constant scaling factor for the noise (only works for \code{scaling='constant'})}
 }

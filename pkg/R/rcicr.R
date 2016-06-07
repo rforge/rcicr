@@ -251,7 +251,7 @@ autoscale <- function(cis, saveasjpegs=TRUE, targetpath='./cis') {
 #' @param targetpath Optional string specifying path to save jpegs to (default: ./cis)
 #' @param filename Optional string to specify a file name for the jpeg image
 #' @param antiCI Optional boolean specifying whether antiCI instead of CI should be computed
-#' @param scaling Optional string specifying scaling method: \code{none}, \code{constant}, or \code{matched} (default)
+#' @param scaling Optional string specifying scaling method: \code{none}, \code{constant}, or \code{independent} (default)
 #' @param constant Optional number specifying the value used as constant scaling factor for the noise (only works for \code{scaling='constant'})
 #' @return List of pixel matrix of classification noise only, scaled classification noise only, base image only and combined 
 generateCI <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, filename='', targetpath='./cis', antiCI=FALSE, scaling='constant', constant=0.1) {
@@ -320,7 +320,7 @@ generateCI <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, fi
     if (max(scaled) > 1.0 | min(scaled) < 0) {
       warning('Chosen constant value for constant scaling made noise of classification image exceed possible intensity range of pixels (<0 or >1). Choose a lower value, or clipping will occur.')
     } 
-  } else if (scaling == 'matched') {
+  } else if (scaling %in% c('matched', 'independent')) {
     scaled <- min(base) + ((max(base) - min(base)) * (ci - min(ci)) / (max(ci) - min(ci)))
   } else {
     warning(paste0('Scaling method \'', scaling, '\' not found. Using none.'))
@@ -368,14 +368,13 @@ generateCI <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, fi
 #' @param baseimage String specifying which base image was used. Not the file name, but the key used in the list of base images at time of generating the stimuli.
 #' @param rdata String pointing to .RData file that was created when stimuli were generated. This file contains the contrast parameters of all generated stimuli.
 #' @param saveasjpeg Boolean stating whether to additionally save the CI as jpeg image
-#' @param saveunscaledjpeg Optional boolean specifying whether unscaled versions of classification images should be saved as jpeg
 #' @param targetpath Optional string specifying path to save jpegs to (default: ./cis)
 #' @param label Optional string to insert in file names of jepgs to make them easier to identify 
 #' @param antiCI Optional boolean specifying whether antiCI instead of CI should be computed
-#' @param scaling Optional string specifying scaling method: \code{none}, \code{constant},  \code{matched} or \code{autoscale} (default)
+#' @param scaling Optional string specifying scaling method: \code{none}, \code{constant},  \code{independent} or \code{autoscale} (default)
 #' @param constant Optional number specifying the value used as constant scaling factor for the noise (only works for \code{scaling='constant'})
 #' @return List of classification image data structures (which are themselves lists of pixel matrix of classification noise only, scaled classification noise only, base image only and combined) 
-batchGenerateCI <- function(data, by, stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, saveunscaledjpeg=FALSE, targetpath='./cis', label='', antiCI=FALSE, scaling='autoscale', constant=0.1) {
+batchGenerateCI <- function(data, by, stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, targetpath='./cis', label='', antiCI=FALSE, scaling='autoscale', constant=0.1) {
   
   if (scaling == 'autoscale') {
     doAutoscale <- TRUE
@@ -403,7 +402,7 @@ batchGenerateCI <- function(data, by, stimuli, responses, baseimage, rdata, save
     }
 
     # Compute CI with appropriate settings for this subset (Optimize later so rdata file is loaded only once)
-    cis[[filename]] <- generateCI(unitdata[,stimuli], unitdata[,responses], baseimage, rdata, saveunscaledjpeg, paste0(filename, '.jpg'), targetpath, antiCI, scaling, constant)
+    cis[[filename]] <- generateCI(unitdata[,stimuli], unitdata[,responses], baseimage, rdata, saveasjpeg, paste0(filename, '.jpg'), targetpath, antiCI, scaling, constant)
   }
   
   if (doAutoscale) {

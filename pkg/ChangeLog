@@ -1,3 +1,8 @@
+Changes from 0.3.3-41 to 0.3.4-42 [07-June-2016]
+
+* Fixed images not saved as jpegs when scaling is set to anything other than autoscale in batchGenerateCI
+* Changed matched scaling to indepedent scaling. Matched scaling still works for backwards compatibility
+
 Changes from 0.3.3-40 to 0.3.3-41 [27-May-2016]
 
 * Fixed reference to packageVersion which produced a note in CRAN check.
