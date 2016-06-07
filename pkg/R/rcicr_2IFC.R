@@ -161,10 +161,10 @@ generateStimuli2IFC <- function(base_face_files, n_trials=770, img_size=512, sti
 #' @param filename Optional string to specify a file name for the jpeg image
 #' @param targetpath Optional string specifying path to save jpegs to (default: ./cis)
 #' @param antiCI Optional boolean specifying whether antiCI instead of CI should be computed
-#' @param scaling Optional string specifying scaling method: \code{none}, \code{constant}, or \code{matched} (default)
+#' @param scaling Optional string specifying scaling method: \code{none}, \code{constant}, \code{matched}, or \code{independent} (default)
 #' @param constant Optional number specifying the value used as constant scaling factor for the noise (only works for \code{scaling='constant'})
 #' @return List of pixel matrix of classification noise only, scaled classification noise only, base image only and combined 
-generateCI2IFC <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, filename='', targetpath="./cis", antiCI=FALSE, scaling='constant', constant=0.1) {
+generateCI2IFC <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, filename='', targetpath="./cis", antiCI=FALSE, scaling='independent', constant=0.1) {
   
   # For backwards compatibility  
   return(generateCI(stimuli, responses, baseimage, rdata, saveasjpeg, filename, targetpath, antiCI, scaling, constant))
@@ -188,14 +188,13 @@ generateCI2IFC <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE
 #' @param baseimage String specifying which base image was used. Not the file name, but the key used in the list of base images at time of generating the stimuli.
 #' @param rdata String pointing to .RData file that was created when stimuli were generated. This file contains the contrast parameters of all generated stimuli.
 #' @param saveasjpeg Boolean stating whether to additionally save the CI as jpeg image
-#' @param saveunscaledjpeg Optional boolean specifying whether unscaled versions of classification images should be saved as jpeg
 #' @param targetpath Optional string specifying path to save jpegs to (default: ./cis)
 #' @param label Optional string to insert in file names of jepgs to make them easier to identify 
 #' @param antiCI Optional boolean specifying whether antiCI instead of CI should be computed
-#' @param scaling Optional string specifying scaling method: \code{none}, \code{constant},  \code{matched} or \code{autoscale} (default)
+#' @param scaling Optional string specifying scaling method: \code{none}, \code{constant}, \code{matched}, \code{independent}, or \code{autoscale} (default)
 #' @param constant Optional number specifying the value used as constant scaling factor for the noise (only works for \code{scaling='constant'})
 #' @return List of classification image data structures (which are themselves lists of pixel matrix of classification noise only, scaled classification noise only, base image only and combined) 
-batchGenerateCI2IFC <- function(data, by, stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, saveunscaledjpeg=FALSE, targetpath='./cis', antiCI=FALSE, scaling='autoscale', constant=0.1, label='') {
+batchGenerateCI2IFC <- function(data, by, stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, targetpath='./cis', antiCI=FALSE, scaling='autoscale', constant=0.1, label='') {
  
   if (scaling == 'autoscale') {
     doAutoscale <- TRUE
@@ -228,7 +227,7 @@ batchGenerateCI2IFC <- function(data, by, stimuli, responses, baseimage, rdata, 
     }
 
     # Compute CI with appropriate settings for this subset (Optimize later so rdata file is loaded only once)
-    cis[[filename]] <- generateCI2IFC(unitdata[,stimuli], unitdata[,responses], baseimage, rdata, saveunscaledjpeg, paste0(filename, '.jpg'), targetpath, antiCI, scaling, constant)
+    cis[[filename]] <- generateCI2IFC(unitdata[,stimuli], unitdata[,responses], baseimage, rdata, saveasjpeg, paste0(filename, '.jpg'), targetpath, antiCI, scaling, constant)
   }
   
   if (doAutoscale) {

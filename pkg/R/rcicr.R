@@ -251,11 +251,11 @@ autoscale <- function(cis, saveasjpegs=TRUE, targetpath='./cis') {
 #' @param targetpath Optional string specifying path to save jpegs to (default: ./cis)
 #' @param filename Optional string to specify a file name for the jpeg image
 #' @param antiCI Optional boolean specifying whether antiCI instead of CI should be computed
-#' @param scaling Optional string specifying scaling method: \code{none}, \code{constant}, or \code{independent} (default)
+#' @param scaling Optional string specifying scaling method: \code{none}, \code{constant}, \code{matched}, or \code{independent} (default)
 #' @param constant Optional number specifying the value used as constant scaling factor for the noise (only works for \code{scaling='constant'})
 #' @return List of pixel matrix of classification noise only, scaled classification noise only, base image only and combined 
-generateCI <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, filename='', targetpath='./cis', antiCI=FALSE, scaling='constant', constant=0.1) {
-  
+generateCI <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, filename='', targetpath='./cis', antiCI=FALSE, scaling='independent', constant=0.1) {
+
   # Load parameter file (created when generating stimuli)
   load(rdata)
   
@@ -320,8 +320,20 @@ generateCI <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, fi
     if (max(scaled) > 1.0 | min(scaled) < 0) {
       warning('Chosen constant value for constant scaling made noise of classification image exceed possible intensity range of pixels (<0 or >1). Choose a lower value, or clipping will occur.')
     } 
-  } else if (scaling %in% c('matched', 'independent')) {
+  } else if (scaling == 'matched') {
     scaled <- min(base) + ((max(base) - min(base)) * (ci - min(ci)) / (max(ci) - min(ci)))
+    
+  } else if (scaling == "independent") {
+
+    # Determine the lowest possible scaling factor constant
+    if (abs(range(ci)[1]) > abs(range(ci)[2])) {
+      constant <- abs(range(ci)[1])
+    }  else {
+      constant <- abs(range(ci)[2])
+    }
+    
+    scaled <- (ci + constant) / (2*constant)
+    
   } else {
     warning(paste0('Scaling method \'', scaling, '\' not found. Using none.'))
     scaled <- ci
@@ -332,7 +344,6 @@ generateCI <- function(stimuli, responses, baseimage, rdata, saveasjpeg=TRUE, fi
   
   # Save to file
   if (saveasjpeg) {
-    
     if (filename == '') {
       filename <- paste0(baseimage, '.jpg')
     }
@@ -382,7 +393,7 @@ batchGenerateCI <- function(data, by, stimuli, responses, baseimage, rdata, save
   } else {
     doAutoscale <- FALSE
   }
-  
+
   pb <- dplyr::progress_estimated(length(unique(data[,by])))
   cis <- list()
 

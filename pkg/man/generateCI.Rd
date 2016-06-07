@@ -6,7 +6,7 @@
 \usage{
 generateCI(stimuli, responses, baseimage, rdata, saveasjpeg = TRUE,
   filename = "", targetpath = "./cis", antiCI = FALSE,
-  scaling = "constant", constant = 0.1)
+  scaling = "independent", constant = 0.1)
 }
 \arguments{
 \item{stimuli}{Vector with stimulus numbers (should be numeric) that were presented in the order of the response vector. Stimulus numbers must match those in file name of the generated stimuli}
@@ -25,7 +25,7 @@ generateCI(stimuli, responses, baseimage, rdata, saveasjpeg = TRUE,
 
 \item{antiCI}{Optional boolean specifying whether antiCI instead of CI should be computed}
 
-\item{scaling}{Optional string specifying scaling method: \code{none}, \code{constant}, or \code{independent} (default)}
+\item{scaling}{Optional string specifying scaling method: \code{none}, \code{constant}, \code{matched}, or \code{independent} (default)}
 
 \item{constant}{Optional number specifying the value used as constant scaling factor for the noise (only works for \code{scaling='constant'})}
 }

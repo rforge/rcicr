@@ -5,8 +5,8 @@
 \title{Generates multiple 2IFC classification images by participant or condition}
 \usage{
 batchGenerateCI2IFC(data, by, stimuli, responses, baseimage, rdata,
-  saveasjpeg = TRUE, saveunscaledjpeg = FALSE, targetpath = "./cis",
-  antiCI = FALSE, scaling = "autoscale", constant = 0.1, label = "")
+  saveasjpeg = TRUE, targetpath = "./cis", antiCI = FALSE,
+  scaling = "autoscale", constant = 0.1, label = "")
 }
 \arguments{
 \item{data}{Data frame}
@@ -23,13 +23,11 @@ batchGenerateCI2IFC(data, by, stimuli, responses, baseimage, rdata,
 
 \item{saveasjpeg}{Boolean stating whether to additionally save the CI as jpeg image}
 
-\item{saveunscaledjpeg}{Optional boolean specifying whether unscaled versions of classification images should be saved as jpeg}
-
 \item{targetpath}{Optional string specifying path to save jpegs to (default: ./cis)}
 
 \item{antiCI}{Optional boolean specifying whether antiCI instead of CI should be computed}
 
-\item{scaling}{Optional string specifying scaling method: \code{none}, \code{constant},  \code{matched} or \code{autoscale} (default)}
+\item{scaling}{Optional string specifying scaling method: \code{none}, \code{constant}, \code{matched}, \code{independent}, or \code{autoscale} (default)}
 
 \item{constant}{Optional number specifying the value used as constant scaling factor for the noise (only works for \code{scaling='constant'})}
 
