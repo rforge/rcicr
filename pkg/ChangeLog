@@ -1,3 +1,7 @@
+Changes from 0.3.3-43 to 0.3.4.1-44 [13-July-2016]
+
+* Admnistrative release, no changes except for dates.
+
 Changes from 0.3.3-41 to 0.3.4-43 [07-June-2016]
 
 * Fixed images not saved as jpegs when scaling is set to anything other than autoscale in batchGenerateCI and batchGenerateCI2IFC
